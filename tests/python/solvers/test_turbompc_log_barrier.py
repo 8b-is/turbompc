@@ -8,6 +8,7 @@ rows, the log_barrier_kappa -> 0 limit, and barrier-domain recovery.
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.constraint_handling_fixtures import (
     OBSTACLE_CENTER,
     OBSTACLE_HORIZON,
@@ -136,6 +137,8 @@ def test_nonfinite_warm_start_is_reported_not_repaired():
 
     # Unlike an out-of-domain z_g, a NaN one is flagged by the inner ADMM.
     broken_dual = cold._replace(
-        admm_state=cold.admm_state._replace(z_g=jnp.full_like(cold.admm_state.z_g, jnp.nan))
+        admm_state=cold.admm_state._replace(
+            z_g=jnp.full_like(cold.admm_state.z_g, jnp.nan)
+        )
     )
     assert int(solver.solve(broken_dual, params).status) == int(SQPStatus.QP_FAILED)

@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 import pytest
+
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
 from turbompc.solvers.turbompc_solver import BackwardBackend, ForwardBackend
 

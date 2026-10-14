@@ -15,14 +15,15 @@ import jax.numpy as jnp
 import numpy as np
 import osqp
 import scipy.sparse as sp
+
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
-from turbompc.solvers.linesearch import (
-    backtracking_linesearch,
-    evaluate_constraints_with_bounds,
-)
 from turbompc.solvers.constraint_handling import (
     ConstraintHandling,
     _validate_constraint_settings,
+)
+from turbompc.solvers.linesearch import (
+    backtracking_linesearch,
+    evaluate_constraints_with_bounds,
 )
 from turbompc.solvers.qp_data import QPData, qpdata_from_ocp_blocks, scale_qp_data
 from turbompc.solvers.qp_utils import ZShape, pack_z, unpack_z
@@ -611,10 +612,7 @@ class SQPOSQPSolver:
             states, controls = states_new, controls_new
 
             # One-step solves report MAX_ITER after completing the loop.
-            if (
-                maxiter > 1
-                and convergence_error <= self.params["tol_convergence"]
-            ):
+            if maxiter > 1 and convergence_error <= self.params["tol_convergence"]:
                 num_completed = k + 1
                 iters = iters[:num_completed]
                 if linesearch_alphas is not None:

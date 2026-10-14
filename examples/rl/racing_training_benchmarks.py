@@ -116,7 +116,10 @@ def report(results, output):
             [
                 METHODS[result["algorithm"]],
                 *[f"{result['mean'][key]:.3f}" for key, _, _ in PHASES],
-                f"{result['mean']['total_seconds']:.3f} ± {result['std']['total_seconds']:.3f}",
+                (
+                    f"{result['mean']['total_seconds']:.3f} ±"
+                    f" {result['std']['total_seconds']:.3f}"
+                ),
                 *counts,
             ]
         )

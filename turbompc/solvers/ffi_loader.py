@@ -108,7 +108,7 @@ def find_ffi_lib(name: str, env_var: str | None = None) -> Path:
     searched = "\n".join(f"  {path.parent}" for path in candidates)
     raise FileNotFoundError(
         f"Could not find {name}. Reinstall with CUDA enabled: "
-        f"`TURBOMPC_CUDA=ON pip install .` (add -e for an editable install).\n"
+        "`TURBOMPC_CUDA=ON pip install .` (add -e for an editable install).\n"
         f"Searched:\n{searched}"
     )
 

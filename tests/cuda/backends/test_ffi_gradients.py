@@ -2,6 +2,7 @@
 import jax
 import jax.numpy as jnp
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.constraint_handling_fixtures import HANDLINGS, with_handling
 from tests.helpers.problem_fixtures import make_spacecraft_params

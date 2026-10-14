@@ -200,28 +200,18 @@ def cudss_ffi_solve(
     """Solve one system, combining surrounding ``vmap`` axes natively."""
 
     def solve_one(S, rhs, factorize):
-        return _cudss_ffi_solve_impl(
-            S, rhs, workspace=workspace, factorize=factorize
-        )
+        return _cudss_ffi_solve_impl(S, rhs, workspace=workspace, factorize=factorize)
 
     solve_one = jax.custom_batching.custom_vmap(solve_one)
 
     @solve_one.def_vmap
     def solve_one_vmap(axis_size, in_batched, S, rhs, factorize):
-        S_batched = (
-            S
-            if in_batched[0]
-            else jnp.broadcast_to(S, (axis_size,) + S.shape)
-        )
+        S_batched = S if in_batched[0] else jnp.broadcast_to(S, (axis_size,) + S.shape)
         rhs_batched = (
-            rhs
-            if in_batched[1]
-            else jnp.broadcast_to(rhs, (axis_size,) + rhs.shape)
+            rhs if in_batched[1] else jnp.broadcast_to(rhs, (axis_size,) + rhs.shape)
         )
         factorize_batched = (
-            factorize
-            if in_batched[2]
-            else jnp.broadcast_to(factorize, (axis_size,))
+            factorize if in_batched[2] else jnp.broadcast_to(factorize, (axis_size,))
         )
         batch_shape = S_batched.shape[:-3]
         S_flat = S_batched.reshape((-1,) + S_batched.shape[-3:])

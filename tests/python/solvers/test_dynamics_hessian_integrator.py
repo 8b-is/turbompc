@@ -11,6 +11,7 @@ import pytest
 jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
+
 from turbompc.dynamics.cartpole_dynamics import CartpoleDynamics
 from turbompc.dynamics.integrators import DiscretizationScheme, predict_next_state
 from turbompc.problems.optimal_control_problem import OptimalControlProblem

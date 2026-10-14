@@ -9,6 +9,7 @@ import pytest
 jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.ocp_fixtures import (
     make_linear_ocp,

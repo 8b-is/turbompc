@@ -6,6 +6,7 @@ import time
 
 import numpy as np
 import torch
+
 try:
     from .benchmark_naming import mpcpytorch_dirname
     from .utils import (

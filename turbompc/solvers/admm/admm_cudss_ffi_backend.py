@@ -576,9 +576,7 @@ def admm_cudss_ffi_solve(
     solve_one = jax.custom_batching.custom_vmap(solve_one)
 
     @solve_one.def_vmap
-    def solve_one_vmap(
-        axis_size, in_batched, qp_data, schur, state0, slack_weight
-    ):
+    def solve_one_vmap(axis_size, in_batched, qp_data, schur, state0, slack_weight):
         args = (qp_data, schur, state0, slack_weight)
         leaves, treedef = jax.tree.flatten(args)
         batched_leaves = jax.tree.leaves(in_batched)
@@ -586,10 +584,10 @@ def admm_cudss_ffi_solve(
             raise ValueError("custom vmap flags do not match ADMM input leaves")
 
         materialized_leaves = [
-            leaf
-            if is_batched
-            else jnp.broadcast_to(
-                jnp.asarray(leaf), (axis_size,) + jnp.shape(leaf)
+            (
+                leaf
+                if is_batched
+                else jnp.broadcast_to(jnp.asarray(leaf), (axis_size,) + jnp.shape(leaf))
             )
             for leaf, is_batched in zip(leaves, batched_leaves)
         ]

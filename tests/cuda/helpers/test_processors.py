@@ -7,6 +7,7 @@ Covers:
 - build() produces working instances
 """
 import pytest
+
 from tests.cuda.helpers.processors import (
     OCPProcessor,
     OCPSpec,
@@ -99,9 +100,7 @@ class TestSolverSpecValidation:
 
     def test_full_hessian_requires_direct_backward(self):
         # default backward for ADMM_JAX_LOOP_PCG is ADMM_JAX_LOOP_PCG (not direct)
-        with pytest.raises(
-            ValueError, match="FULL_HESSIAN backward requires"
-        ):
+        with pytest.raises(ValueError, match="FULL_HESSIAN backward requires"):
             SolverSpec(
                 forward_backend=ForwardBackend.ADMM_JAX_LOOP_PCG,
                 backward_hessian=HessianApproximation.FULL_HESSIAN,
@@ -121,10 +120,9 @@ class TestSolverSpecValidation:
             forward_hessian=HessianApproximation.FULL_HESSIAN_PROJECTED,
             backward_hessian=HessianApproximation.FULL_HESSIAN,
         )
-        assert spec.pytest_id() == (
-            "ADMM_FUSED_CUDSS"
-            "-fwh-FULL_HESSIAN_PROJECTED"
-            "-bwh-FULL_HESSIAN"
+        assert (
+            spec.pytest_id()
+            == "ADMM_FUSED_CUDSS-fwh-FULL_HESSIAN_PROJECTED-bwh-FULL_HESSIAN"
         )
 
     def test_rho_range(self):
@@ -185,7 +183,9 @@ class TestOCPBuild:
     def test_obstacle_variant_has_no_solver_settings(self):
         ocp, params = OCPProcessor.build(
             OCPSpec(
-                dynamics="drone", horizon=5, ocp_variant="obstacle",
+                dynamics="drone",
+                horizon=5,
+                ocp_variant="obstacle",
                 obstacle_centers=((-1.4, -0.1),),
                 obstacle_radii=(0.3,),
             )

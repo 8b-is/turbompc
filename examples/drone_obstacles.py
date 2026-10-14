@@ -10,6 +10,7 @@ from matplotlib.patches import Circle
 config.update("jax_enable_x64", True)  # use double precision
 
 import jax
+
 from examples.drone_utils import OBS_CENTERS, OBS_RADII, make_drone_config
 from turbompc.solvers.turbompc_solver import (
     BACKWARD_BACKEND_CHOICES,

@@ -20,6 +20,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 import numpy as np
 import scipy.linalg
+
 try:
     from .benchmark_acados_constrained import (
         ControlBoundedLqrProblem,

@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.schur_fixtures import make_spacecraft_schur_system
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
@@ -67,9 +68,9 @@ class TestCudssFfiBackend:
         sol = workspace.solve(S, gamma)
 
         diff = float(jnp.max(jnp.abs(sol - ref)))
-        assert diff < 5e-6, (
-            f"horizon={horizon}: cuDSS FFI vs JAX dense mismatch: {diff}"
-        )
+        assert (
+            diff < 5e-6
+        ), f"horizon={horizon}: cuDSS FFI vs JAX dense mismatch: {diff}"
 
     @pytest.mark.parametrize("horizon", [5, 10])
     def test_cudss_ffi_is_deterministic(self, horizon):

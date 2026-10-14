@@ -114,15 +114,11 @@ class EigenBlockTridiWorkspace:
 def _solve_host(workspace: EigenBlockTridiWorkspace, blocks, rhs, factorize):
     extension = _extension()
     if blocks.dtype == np.float32:
-        return extension.solve_float(
-            workspace.handle, blocks, rhs, bool(factorize)
-        )
+        return extension.solve_float(workspace.handle, blocks, rhs, bool(factorize))
     return extension.solve_double(workspace.handle, blocks, rhs, bool(factorize))
 
 
-def _eigen_solve_impl(
-    blocks, rhs, *, factorize, workspace: EigenBlockTridiWorkspace
-):
+def _eigen_solve_impl(blocks, rhs, *, factorize, workspace: EigenBlockTridiWorkspace):
     """Solve ``blocks @ x = rhs`` with an explicitly owned Eigen workspace."""
     _extension()
     if not isinstance(workspace, EigenBlockTridiWorkspace):
@@ -174,9 +170,7 @@ def eigen_solve(blocks, rhs, *, factorize, workspace: EigenBlockTridiWorkspace):
     """Solve one system, combining surrounding ``vmap`` axes natively."""
 
     def solve_one(blocks, rhs, factorize):
-        return _eigen_solve_impl(
-            blocks, rhs, factorize=factorize, workspace=workspace
-        )
+        return _eigen_solve_impl(blocks, rhs, factorize=factorize, workspace=workspace)
 
     solve_one = jax.custom_batching.custom_vmap(solve_one)
 
@@ -188,23 +182,15 @@ def eigen_solve(blocks, rhs, *, factorize, workspace: EigenBlockTridiWorkspace):
             else jnp.broadcast_to(blocks, (axis_size,) + blocks.shape)
         )
         rhs_batched = (
-            rhs
-            if in_batched[1]
-            else jnp.broadcast_to(rhs, (axis_size,) + rhs.shape)
+            rhs if in_batched[1] else jnp.broadcast_to(rhs, (axis_size,) + rhs.shape)
         )
         factorize_batched = (
-            factorize
-            if in_batched[2]
-            else jnp.broadcast_to(factorize, (axis_size,))
+            factorize if in_batched[2] else jnp.broadcast_to(factorize, (axis_size,))
         )
         batch_shape = blocks_batched.shape[:-3]
-        blocks_flat = blocks_batched.reshape(
-            (-1,) + blocks_batched.shape[-3:]
-        )
+        blocks_flat = blocks_batched.reshape((-1,) + blocks_batched.shape[-3:])
         rhs_flat = rhs_batched.reshape((-1,) + rhs_batched.shape[-2:])
-        output_flat = solve_one(
-            blocks_flat, rhs_flat, jnp.any(factorize_batched)
-        )
+        output_flat = solve_one(blocks_flat, rhs_flat, jnp.any(factorize_batched))
         output = output_flat.reshape(batch_shape + output_flat.shape[-2:])
         return output, True
 

@@ -13,6 +13,7 @@ from typing import Any, Dict, NamedTuple, Tuple
 import jax
 import jax.numpy as jnp
 from jax import grad, jacfwd
+
 from turbompc.dynamics.integrators import DiscretizationScheme
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
 from turbompc.solvers.linear_systems_solvers.pcg_dual import (

@@ -14,6 +14,7 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
+
 from turbompc.dynamics.vehicle import PathVehicleDynamics, TimeVehicleDynamics
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
 from turbompc.solvers.turbompc_solver import (

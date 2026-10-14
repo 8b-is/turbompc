@@ -255,7 +255,7 @@ class RacingEnv:
         )
         if self.progress_reward_mode not in {"linear", "reference_linear"}:
             raise ValueError(
-                "env.progress_reward_mode must be 'linear' or " "'reference_linear'"
+                "env.progress_reward_mode must be 'linear' or 'reference_linear'"
             )
         self.tracking_weight = float(env.get("tracking_weight", 1.0))
         tracking_scales = np.asarray(env["tracking_weight_scales"], dtype=np.float64)
@@ -265,7 +265,7 @@ class RacingEnv:
             or np.any(tracking_scales <= 0.0)
         ):
             raise ValueError(
-                "env.tracking_weight_scales must contain six positive " "finite values"
+                "env.tracking_weight_scales must contain six positive finite values"
             )
         self.tracking_weight_scales = jnp.asarray(tracking_scales)
         self.failure_penalty = float(env.get("failure_penalty", 50.0))

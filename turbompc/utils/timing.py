@@ -11,6 +11,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from jax import jit, vmap
+
 from turbompc.dynamics.base_dynamics import Dynamics
 from turbompc.dynamics.integrators import DiscretizationScheme, predict_next_state
 from turbompc.problems.optimal_control_problem import OptimalControlProblem

@@ -3,6 +3,7 @@
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
 from turbompc.solvers.linear_systems_solvers.linear_solve import (
     solve_block_tridi_system,

@@ -13,6 +13,7 @@ config.update("jax_enable_x64", True)
 config.update("jax_threefry_partitionable", True)
 
 import jax.numpy as jnp  # noqa: E402
+
 try:
     from .benchmark_naming import device_name_for_file, turbompc_dirname  # noqa: E402
     from .benchmark_problem_setup import build_turbompc_linear_problem  # noqa: E402

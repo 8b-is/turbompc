@@ -8,13 +8,9 @@ from typing import Any, Dict, NamedTuple, Optional, Tuple, Union
 
 import jax
 import jax.numpy as jnp
+
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
-from turbompc.solvers.admm import (
-    ADMMSolver,
-    ADMMState,
-    ADMMStats,
-    empty_admm_stats,
-)
+from turbompc.solvers.admm import ADMMSolver, ADMMState, ADMMStats, empty_admm_stats
 from turbompc.solvers.admm.admm import _apply_G
 from turbompc.solvers.backward.backward_kkt_jax import solve_backward_kkt
 from turbompc.solvers.constraint_handling import (
@@ -37,9 +33,7 @@ from turbompc.solvers.qp_data import (
 )
 
 try:
-    from turbompc.solvers.backward.backward_kkt_cudss_ffi import (
-        CudssBackwardKktSolver,
-    )
+    from turbompc.solvers.backward.backward_kkt_cudss_ffi import CudssBackwardKktSolver
 
     _HAS_CUDSS_FFI = True
 except (FileNotFoundError, OSError, ImportError):
@@ -511,9 +505,7 @@ class TurboMPCSolver:
             rho_min=admm_params.get("rho_min", 1.0e-6),
             rho_max=admm_params.get("rho_max", 1.0e6),
             check_termination_every=admm_params.get("check_termination_every", 1),
-            check_infeasibility_every=admm_params.get(
-                "check_infeasibility_every", 25
-            ),
+            check_infeasibility_every=admm_params.get("check_infeasibility_every", 25),
             adapt_rho_every=admm_params.get("adapt_rho_every", 5),
             adaptive_rho_tolerance=admm_params.get("adaptive_rho_tolerance", 5.0),
             rho_update_max_factor=admm_params.get("rho_update_max_factor", 1.0e6),
@@ -609,7 +601,7 @@ class TurboMPCSolver:
             f"eps_abs={admm_params.get('eps_abs', 1.0e-4):.3e} "
             f"eps_rel={admm_params.get('eps_rel', 1.0e-3):.3e} "
             f"check_termination_every={admm_params.get('check_termination_every', 1)} "
-            f"check_infeasibility_every="
+            "check_infeasibility_every="
             f"{admm_params.get('check_infeasibility_every', 25)} "
             f"adapt_rho_every={admm_params.get('adapt_rho_every', 5)}"
         )
@@ -1163,7 +1155,9 @@ class TurboMPCSolver:
         dL_dgamma: jnp.ndarray,
     ) -> Any:
         weights_without_slack_penalty = self._weights_without_slack_penalty(weights)
-        flat_weights, tree_def = jax.tree_util.tree_flatten(weights_without_slack_penalty)
+        flat_weights, tree_def = jax.tree_util.tree_flatten(
+            weights_without_slack_penalty
+        )
         flat_weights = [jnp.asarray(arr) for arr in flat_weights]
         start_idx = 0
         dL_dtheta_chunks = []
@@ -1630,7 +1624,7 @@ class TurboMPCSolver:
             slack_penalization_weight,
         )
 
-    def _solve_impl(
+    def _solve_impl(  # noqa: C901
         self,
         states: jnp.ndarray,
         controls: jnp.ndarray,
@@ -1691,6 +1685,7 @@ class TurboMPCSolver:
         constraint_carry0 = self._constraint_handler.init_carry(
             states, controls, slacks0, problem_params
         )
+
         class _SQPState(NamedTuple):
             it: jnp.ndarray
             states: jnp.ndarray
@@ -1935,9 +1930,7 @@ class TurboMPCSolver:
         )
 
         # The constraint carry is an empty pytree for projection handling.
-        out, _ = jax.lax.while_loop(
-            cond_fun, body_fun, (init_state, constraint_carry0)
-        )
+        out, _ = jax.lax.while_loop(cond_fun, body_fun, (init_state, constraint_carry0))
 
         final_states_qp, final_controls_qp = self.program.scale_states_controls(
             out.states, out.controls, problem_params

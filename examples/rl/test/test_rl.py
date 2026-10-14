@@ -30,14 +30,27 @@ def test_paper_curve_uses_step_reward_for_different_episode_lengths():
     from examples.rl.racing_training_experiment import learning_curve
 
     history = [
-        {"update": 10, "eval/return_mean": -100.0, "eval/reward_mean": -1.0,
-         "time/collect_seconds": 1.0, "time/train_seconds": 2.0},
-        {"update": 20, "eval/return_mean": -500.0, "eval/reward_mean": -0.5,
-         "time/collect_seconds": 1.0, "time/train_seconds": 2.0},
+        {
+            "update": 10,
+            "eval/return_mean": -100.0,
+            "eval/reward_mean": -1.0,
+            "time/collect_seconds": 1.0,
+            "time/train_seconds": 2.0,
+        },
+        {
+            "update": 20,
+            "eval/return_mean": -500.0,
+            "eval/reward_mean": -0.5,
+            "time/collect_seconds": 1.0,
+            "time/train_seconds": 2.0,
+        },
     ]
     summary = {
-        "method": "ppo_mpc", "seed": 0, "updates": 20,
-        "transitions_per_update": 131072, "initial_evaluation": {},
+        "method": "ppo_mpc",
+        "seed": 0,
+        "updates": 20,
+        "transitions_per_update": 131072,
+        "initial_evaluation": {},
     }
     curve = learning_curve(history, summary, baseline_reward=-0.75)
     assert [curve[step]["return"] for step in (0, 10, 20)] == [-0.75, -1.0, -0.5]
@@ -68,14 +81,18 @@ def test_cudss_policy_does_not_depend_on_batch_partners(handling, kappa, use_sla
         for key, value in params["dynamics_state_dot_params"].items()
     }
     settings = load_solver_params("turbompc.yaml")
-    settings.update(constraint_handling=handling, log_barrier_kappa=kappa,
-                    num_sqp_iteration_max=1)
+    settings.update(
+        constraint_handling=handling, log_barrier_kappa=kappa, num_sqp_iteration_max=1
+    )
     settings["linesearch"]["method"] = "none"
-    settings["admm"].update(eps_abs=1e-3, eps_rel=1e-3, max_iter=400,
-                           check_termination_every=5)
+    settings["admm"].update(
+        eps_abs=1e-3, eps_rel=1e-3, max_iter=400, check_termination_every=5
+    )
     solver = TurboMPCSolver(
-        OptimalControlProblem(LinearDynamics(), params), settings,
-        forward_backend="admm_fused_cudss", backward_backend="direct_jax_dense",
+        OptimalControlProblem(LinearDynamics(), params),
+        settings,
+        forward_backend="admm_fused_cudss",
+        backward_backend="direct_jax_dense",
     )
 
     def solve(initial_state):
@@ -87,12 +104,16 @@ def test_cudss_policy_does_not_depend_on_batch_partners(handling, kappa, use_sla
     together = jax.jit(jax.vmap(solve))(starts)
     assert int(individual[0].admm_iters.sum()) < int(individual[1].admm_iters.sum())
     for index, expected in enumerate(individual):
-        np.testing.assert_allclose(together.states[index], expected.states, rtol=1e-8, atol=1e-8)
-        np.testing.assert_allclose(together.controls[index], expected.controls, rtol=1e-8, atol=1e-8)
+        np.testing.assert_allclose(
+            together.states[index], expected.states, rtol=1e-8, atol=1e-8
+        )
+        np.testing.assert_allclose(
+            together.controls[index], expected.controls, rtol=1e-8, atol=1e-8
+        )
         np.testing.assert_array_equal(together.admm_iters[index], expected.admm_iters)
 
     def loss(state):
-        return jnp.sum(solve(state).controls**2)
+        return jnp.sum(solve(state).controls ** 2)
 
     gradients = jax.jit(jax.grad(lambda states: jax.vmap(loss)(states).sum()))(starts)
     for index, state in enumerate(starts):
@@ -178,7 +199,9 @@ def test_cached_vjp_matches_autodiff_and_finite_difference(
 @pytest.mark.parametrize("device", ["cpu", "cuda"])
 @pytest.mark.parametrize("nested", [False, True])
 def test_framework_bridge_owns_its_snapshots(dtype, device, nested):
-    if device == "cuda" and (not torch.cuda.is_available() or jax.default_backend() != "gpu"):
+    if device == "cuda" and (
+        not torch.cuda.is_available() or jax.default_backend() != "gpu"
+    ):
         pytest.skip("CUDA snapshot checks require Torch and JAX on GPU")
     source = torch.arange(6, dtype=dtype, device=device).reshape(2, 3).T
     value = (source, {"column": source[:, 0], "empty": None}) if nested else source
@@ -399,7 +422,8 @@ def test_drone_retains_and_shifts_one_sqp_solution(drone, monkeypatch):
         )
         np.testing.assert_allclose(
             state.warm_start.controls[:, :-1],
-            0.98 * policy.iterate.controls[:, :-1] + 0.02 * policy.iterate.controls[:, 1:],
+            0.98 * policy.iterate.controls[:, :-1]
+            + 0.02 * policy.iterate.controls[:, 1:],
         )
     np.testing.assert_array_equal(calls, [[1, 1], [1, 1]])
     assert step.done.all() and not step.timeout.any()
@@ -438,19 +462,30 @@ def test_drone_distance_violation_reward_and_gradient(drone):
 def test_drone_goal_and_terminal_reward_gradient(drone):
     runtime = DroneRuntime(
         drone.problem,
-        {**drone.problem.config.solver_params,
-         "forward_backend": "admm_jax_loop_jax_dense",
-         "backward_backend": "direct_jax_dense"},
-        device="cpu", episode_steps=2, control_dt=0.02, finite_horizon=True,
+        {
+            **drone.problem.config.solver_params,
+            "forward_backend": "admm_jax_loop_jax_dense",
+            "backward_backend": "direct_jax_dense",
+        },
+        device="cpu",
+        episode_steps=2,
+        control_dt=0.02,
+        finite_horizon=True,
         reward_weights={
-            "state": [0.0] * 6, "control": [0.0] * 3, "obstacle": 0.0,
-            "goal": 1.0, "goal_radius": 0.1, "terminal_state": [10.0] * 6,
+            "state": [0.0] * 6,
+            "control": [0.0] * 3,
+            "obstacle": 0.0,
+            "goal": 1.0,
+            "goal_radius": 0.1,
+            "terminal_state": [10.0] * 6,
         },
     )
     state = runtime.reset(2, 0, initial_states=np.tile([0.2, 0, 0, 0.1, 0, 0], (2, 1)))
     state = state._replace(x=state.x.requires_grad_(), steps=torch.tensor([0, 1]))
     action = torch.zeros((2, 3), dtype=runtime.dtype, requires_grad=True)
-    policy = SimpleNamespace(valid=torch.ones(2, dtype=torch.bool), iterate=state.warm_start)
+    policy = SimpleNamespace(
+        valid=torch.ones(2, dtype=torch.bool), iterate=state.warm_start
+    )
     transition = runtime.step(state, action, policy)
     assert transition.done.tolist() == [False, True]
     assert not transition.timeout.any()
@@ -463,13 +498,17 @@ def test_drone_goal_and_terminal_reward_gradient(drone):
     epsilon = 1e-5
     direction = torch.tensor([1, -1, 0.5, 0.2, -0.3, 0.1], dtype=runtime.dtype)
     with torch.no_grad():
-        plus = runtime.step(state._replace(x=state.x + epsilon * direction),
-                            action + epsilon, policy).reward.sum()
-        minus = runtime.step(state._replace(x=state.x - epsilon * direction),
-                             action - epsilon, policy).reward.sum()
+        plus = runtime.step(
+            state._replace(x=state.x + epsilon * direction), action + epsilon, policy
+        ).reward.sum()
+        minus = runtime.step(
+            state._replace(x=state.x - epsilon * direction), action - epsilon, policy
+        ).reward.sum()
     torch.testing.assert_close(
-        (dx * direction).sum() + du.sum(), (plus - minus) / (2 * epsilon),
-        rtol=1e-6, atol=1e-8,
+        (dx * direction).sum() + du.sum(),
+        (plus - minus) / (2 * epsilon),
+        rtol=1e-6,
+        atol=1e-8,
     )
 
 
@@ -506,10 +545,15 @@ def test_cached_pullbacks_mask_invalid_rows(drone):
 def test_inactive_evaluation_row_preserves_active_policy_and_fallback(drone):
     state = drone.reset(2, 0)
     costs, context = jnp.zeros((2, 15)), torch_to_jax(state.x)
-    expected = drone.backend.solve_device(costs, context, state.warm_start, retain=False)
+    expected = drone.backend.solve_device(
+        costs, context, state.warm_start, retain=False
+    )
     actual = drone.backend.solve_device(
-        costs.at[1].set(jnp.nan), context.at[1].set(jnp.nan), state.warm_start,
-        retain=False, active=jnp.array([True, False]),
+        costs.at[1].set(jnp.nan),
+        context.at[1].set(jnp.nan),
+        state.warm_start,
+        retain=False,
+        active=jnp.array([True, False]),
     )
     np.testing.assert_array_equal(actual.valid, [True, False])
     np.testing.assert_allclose(actual.mean[0], expected.mean[0], rtol=1e-7, atol=1e-7)

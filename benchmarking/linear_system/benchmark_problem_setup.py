@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+
 from turbompc.dynamics.linear_dynamics import (
     LinearDynamics,
     default_state_dot_parameters,
 )
+
 try:
     from .utils import N_CTRL, N_STATE
 except ImportError:  # pragma: no cover - direct script execution

@@ -4,6 +4,7 @@ from typing import Any, Dict, NamedTuple, Tuple
 import jax.numpy as jnp
 from jax import lax, vmap
 from jax.lax import while_loop
+
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
 from turbompc.solvers.linear_systems_solvers.linear_solve import (
     solve_block_tridi_system,

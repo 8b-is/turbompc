@@ -9,6 +9,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from jax import vmap
+
 from tests.helpers.problem_fixtures import make_linear_params
 from turbompc.problems.obstacle_avoidance import OptimalControlProblemObstacle
 from turbompc.problems.optimal_control_problem import OptimalControlProblem

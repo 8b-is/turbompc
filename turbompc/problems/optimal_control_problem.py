@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 import jax
 import jax.numpy as jnp
 from jax import vmap
+
 from turbompc.dynamics.base_dynamics import Dynamics
 from turbompc.dynamics.integrators import DiscretizationScheme, predict_next_state
 from turbompc.utils.jax_utils import value_and_jacfwd
@@ -177,8 +178,7 @@ class OptimalControlProblem(BaseOptimalControlProblem):
         self._use_slack_variables = bool(params.get("use_slack_variables", False))
         if self._use_slack_variables and "slack_penalization_weight" not in params:
             raise KeyError(
-                "slack_penalization_weight is required when "
-                "use_slack_variables=True."
+                "slack_penalization_weight is required when use_slack_variables=True."
             )
         self._discretization_scheme = DiscretizationScheme(
             params["discretization_scheme"]
@@ -1516,6 +1516,7 @@ class OptimalControlProblem(BaseOptimalControlProblem):
         return self.cost(states, controls, params) + 0.5 * slack_weight * jnp.sum(
             slacks**2
         )
+
 
 __all__ = [
     "BaseOptimalControlProblem",

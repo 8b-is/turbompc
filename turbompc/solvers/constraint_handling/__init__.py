@@ -65,8 +65,7 @@ def _validate_constraint_settings(
             )
     elif slack_weight != 0.0:
         raise ValueError(
-            "slack_penalization_weight must be zero when "
-            "use_slack_variables is false"
+            "slack_penalization_weight must be zero when use_slack_variables is false"
         )
     return handling
 

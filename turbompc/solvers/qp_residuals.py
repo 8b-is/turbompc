@@ -3,6 +3,7 @@
 from typing import NamedTuple, Tuple
 
 import jax.numpy as jnp
+
 from turbompc.solvers.admm import ADMMState
 from turbompc.solvers.admm.admm import (
     _apply_C,

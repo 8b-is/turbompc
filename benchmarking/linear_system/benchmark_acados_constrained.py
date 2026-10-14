@@ -1,14 +1,13 @@
 import argparse
 import os
-
 from dataclasses import dataclass
 from timeit import default_timer as timer
 from typing import Optional
 
 import casadi as ca
 import numpy as np
-import scipy.linalg
 from acados_template import AcadosModel, AcadosOcp, AcadosOcpBatchSolver
+
 try:
     from .benchmark_naming import acados_dirname
     from .utils import DEBUGD, N_CTRL, generate_problem_data
@@ -86,7 +85,9 @@ def create_acados_solver(
     model.name = f"linear_mpc_bench_{seed}"
 
     ocp.solver_options.integrator_type = "DISCRETE"
-    model.disc_dyn_expr = problem.dynamics.A @ model.x + problem.dynamics.B @ model.u + problem.dynamics.b
+    model.disc_dyn_expr = (
+        problem.dynamics.A @ model.x + problem.dynamics.B @ model.u + problem.dynamics.b
+    )
 
     # parameters
     p_Q_diag = ca.MX.sym("p_Q_diag", nx)
@@ -100,7 +101,9 @@ def create_acados_solver(
     ocp.cost.cost_type = "EXTERNAL"
     ocp.cost.cost_type_e = "EXTERNAL"
     xu = ca.vertcat(model.x, model.u)
-    ocp.model.cost_expr_ext_cost = ca.mtimes([xu.T, ca.diag(ca.vertcat(p_Q_diag, p_R_diag)), xu])
+    ocp.model.cost_expr_ext_cost = ca.mtimes(
+        [xu.T, ca.diag(ca.vertcat(p_Q_diag, p_R_diag)), xu]
+    )
     ocp.model.cost_expr_ext_cost_e = ca.mtimes([model.x.T, ca.diag(p_Q_diag), model.x])
 
     # Constraints
@@ -218,7 +221,7 @@ def benchmark_acados_rollout(
             solver.solve()
             u_applied = solver.get(0, "u")
             # advance dynamics: here MPC and "real" dynamics coincide, so get x from solver.
-            new_states = solver.get(1, 'x')
+            new_states = solver.get(1, "x")
             return u_applied, new_states
 
         def rollout_with_costs(
@@ -277,10 +280,16 @@ def benchmark_acados_rollout(
                 K_step = np.zeros((n_batch, problem.nu, problem.nx))
                 solver.setup_qp_matrices_and_factorize(n_batch)
 
-                K_step = solver.eval_solution_sensitivity(stages=0, with_respect_to="initial_state", sanity_checks=False, return_sens_x=False, return_sens_u=True)['sens_u']
+                K_step = solver.eval_solution_sensitivity(
+                    stages=0,
+                    with_respect_to="initial_state",
+                    sanity_checks=False,
+                    return_sens_x=False,
+                    return_sens_u=True,
+                )["sens_u"]
 
                 # advance dynamics: here MPC and "real" dynamics coincide, so get x from solver.
-                new_states = solver.get(1, 'x')
+                new_states = solver.get(1, "x")
 
                 u_traj[step] = u_applied.copy()
                 K_traj[step] = K_step
@@ -327,8 +336,8 @@ def benchmark_acados_rollout(
                 term2 = np.einsum("bki,bi->bk", np.swapaxes(K_batch, 1, 2), u_t)
                 phi_batch = term1 + 2.0 * term2
 
-            grad_Q = grad_QR_diag[:problem.nx]
-            grad_R = grad_QR_diag[problem.nx:]
+            grad_Q = grad_QR_diag[: problem.nx]
+            grad_R = grad_QR_diag[problem.nx :]
 
             return grad_Q, grad_R
 

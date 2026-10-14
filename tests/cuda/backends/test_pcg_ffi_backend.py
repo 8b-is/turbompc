@@ -3,6 +3,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.problem_fixtures import make_spacecraft_params
 from tests.helpers.schur_fixtures import make_spacecraft_schur_system

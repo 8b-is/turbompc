@@ -1,6 +1,7 @@
 """Single-track Fiala bicycle model (approximate model)."""
 
 import jax.numpy as jnp
+
 from turbompc.dynamics.base_dynamics import Dynamics
 
 

@@ -7,6 +7,7 @@ from typing import Any, Dict, Tuple
 
 import jax.numpy as jnp
 from jax import vmap
+
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
 from turbompc.solvers.linear_systems_solvers.linear_solve import (
     solve_block_tridi_system,

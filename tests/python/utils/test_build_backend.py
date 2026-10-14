@@ -10,7 +10,9 @@ _MODULE_PATH = Path(__file__).resolve().parents[3] / "turbompc_build.py"
 if not _MODULE_PATH.is_file():  # pragma: no cover - source checkouts only
     pytest.skip("build backend not present", allow_module_level=True)
 
-_spec = importlib.util.spec_from_file_location("turbompc_build_under_test", _MODULE_PATH)
+_spec = importlib.util.spec_from_file_location(
+    "turbompc_build_under_test", _MODULE_PATH
+)
 backend = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(backend)
 

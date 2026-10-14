@@ -4,6 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.problem_fixtures import make_linear_params
 from tests.helpers.solver_fixtures import turbompc_solver_params
@@ -129,7 +130,10 @@ def test_eigen_custom_vmap_reuses_one_lazy_workspace(batch_shape):
         workspace_handle = workspace.handle
         blocks_batched = jnp.broadcast_to(blocks, batch_shape + blocks.shape)
         rhs_batched = jnp.broadcast_to(rhs, batch_shape + rhs.shape)
-        solve_batched = lambda b, r: workspace.solve(b, r, factorize=True)
+
+        def solve_batched(b, r):
+            return workspace.solve(b, r, factorize=True)
+
         for _ in batch_shape:
             solve_batched = jax.vmap(solve_batched)
         actual = jax.jit(solve_batched)(blocks_batched, rhs_batched)

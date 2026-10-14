@@ -3,6 +3,7 @@
 from typing import TYPE_CHECKING, Any, Dict, NamedTuple, Optional, Tuple
 
 import jax.numpy as jnp
+
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
 from turbompc.solvers.admm import ADMMState
 from turbompc.solvers.admm.admm import (
@@ -296,9 +297,7 @@ class LogBarrierHandler(ConstraintHandler):
         gamma = problem_params.get(
             "slack_penalization_weight", self.program.slack_penalization_weight
         )
-        image = prox_two_sided_log_barrier(
-            values, lower, upper, kappa / gamma
-        )
+        image = prox_two_sided_log_barrier(values, lower, upper, kappa / gamma)
         slacks = image - values
         dual = barrier_gradient(image, lower, upper, kappa)
         return solution._replace(

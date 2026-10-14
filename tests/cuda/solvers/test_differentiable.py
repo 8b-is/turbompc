@@ -5,6 +5,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from jax import jit
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.constraint_handling_fixtures import HANDLINGS, with_handling
 from tests.helpers.problem_fixtures import tile_spacecraft_inertia
@@ -190,9 +191,7 @@ def test_turbompc_solver_solve_differentiable(
     )
     problem_params["weights_penalization_final_state"] = jnp.zeros(3)
     problem_params["use_slack_variables"] = use_slack_variables
-    problem_params["slack_penalization_weight"] = (
-        1.0 if use_slack_variables else 0.0
-    )
+    problem_params["slack_penalization_weight"] = 1.0 if use_slack_variables else 0.0
 
     if with_box_constraints:
         problem_params["state_min_bounds"] = jnp.array([-0.2, -0.2, -0.2])

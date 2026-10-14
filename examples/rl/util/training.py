@@ -264,7 +264,10 @@ def train(algorithm, config, output):
                 }
             )
             print(
-                f"update {update:04d}/{algorithm.hyperparameters.total_updates}: {summary}",
+                (
+                    f"update {update:04d}/{algorithm.hyperparameters.total_updates}:"
+                    f" {summary}"
+                ),
                 flush=True,
             )
     save_checkpoint(algorithm, output / "policy_final.pt")

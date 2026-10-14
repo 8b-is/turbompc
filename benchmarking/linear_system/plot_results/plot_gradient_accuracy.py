@@ -20,6 +20,7 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 try:
     from .plot_utils import apply_ieee_style
 except ImportError:  # pragma: no cover - direct script execution

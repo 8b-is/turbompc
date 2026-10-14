@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.problem_fixtures import cost_blocks_from_qr, make_linear_params
 from turbompc.problems.obstacle_avoidance import OptimalControlProblemObstacle
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
@@ -18,6 +19,7 @@ from turbompc.utils.load_params import load_solver_params
 
 BARRIER_KAPPA = 1.0e-4
 SLACK_WEIGHT = 1.0e2
+
 
 def handlings(barrier_kappa: float = BARRIER_KAPPA):
     """``(constraint_handling, log_barrier_kappa)`` params.
@@ -194,7 +196,9 @@ class LowerObstacleProblem(OptimalControlProblem):
         )
 
 
-def obstacle_problem(problem_class=OptimalControlProblemObstacle, start=_OBSTACLE_START):
+def obstacle_problem(
+    problem_class=OptimalControlProblemObstacle, start=_OBSTACLE_START
+):
     """Double integrator that must pass a disk between start and goal."""
     horizon = OBSTACLE_HORIZON
     dynamics, params = make_linear_params(

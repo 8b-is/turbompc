@@ -12,6 +12,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.cuda.helpers.processors import OCPProcessor
 from tests.helpers.backend_utils import backend_param
 from tests.helpers.constraint_handling_fixtures import (
@@ -22,6 +23,7 @@ from tests.helpers.constraint_handling_fixtures import (
     make_qp,
 )
 from tests.helpers.solver_fixtures import build_gauss_newton_qp
+from turbompc.solvers.admm import ADMMSolver
 from turbompc.solvers.admm.admm import (
     ADMMState,
     _apply_C_parts,
@@ -33,7 +35,6 @@ from turbompc.solvers.admm.admm import (
     compute_gamma,
     compute_S_Phiinv,
 )
-from turbompc.solvers.admm import ADMMSolver
 from turbompc.solvers.constraint_handling import ConstraintHandling
 from turbompc.solvers.linear_systems_solvers.backends import (
     AdmmBackend,

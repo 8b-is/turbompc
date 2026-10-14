@@ -4,6 +4,7 @@ from time import time
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.assertions import (
     assert_box_bounds,
     assert_equality_residual,
@@ -22,8 +23,8 @@ from turbompc.problems.obstacle_avoidance import OptimalControlProblemObstacle
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
 from turbompc.solvers.qp_utils import pack_z
 from turbompc.solvers.sqp_diffmpc import SQPDiffMPCSolver
-from turbompc.solvers.status import SQPStatus
 from turbompc.solvers.sqp_osqp import SQPOSQPSolver
+from turbompc.solvers.status import SQPStatus
 from turbompc.utils.load_params import load_problem_params, load_solver_params
 
 EQ_TOL = 1.0e-3

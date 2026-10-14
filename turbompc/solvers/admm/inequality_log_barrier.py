@@ -4,7 +4,6 @@ from typing import Tuple
 
 import jax.numpy as jnp
 
-
 _NEWTON_STEPS = 7
 _FRACTION_TO_BOUNDARY = 0.99
 
@@ -56,9 +55,7 @@ def _finite_two_sided_log_barrier_prox(
     for _ in range(_NEWTON_STEPS):
         lower_clearance = value - lower
         upper_clearance = upper - value
-        residual = value - v + kappa * (
-            1.0 / upper_clearance - 1.0 / lower_clearance
-        )
+        residual = value - v + kappa * (1.0 / upper_clearance - 1.0 / lower_clearance)
         derivative = 1.0 + kappa * (
             1.0 / (upper_clearance * upper_clearance)
             + 1.0 / (lower_clearance * lower_clearance)
@@ -93,9 +90,7 @@ def prox_two_sided_log_barrier(
     # Substitute harmless finite bounds before evaluating all JAX branches.
     safe_lower = jnp.where(finite_lower, lower, v - 1.0)
     safe_upper = jnp.where(finite_upper, upper, v + 1.0)
-    two_sided = _finite_two_sided_log_barrier_prox(
-        v, safe_lower, safe_upper, kappa
-    )
+    two_sided = _finite_two_sided_log_barrier_prox(v, safe_lower, safe_upper, kappa)
 
     lower_clearance = _positive_quadratic_root(v - safe_lower, kappa)
     lower_only = jnp.maximum(
@@ -135,9 +130,7 @@ def relaxed_log_barrier_prox_update(
 ) -> Tuple[jnp.ndarray, jnp.ndarray]:
     """Return ``(z_g, xi_g)`` for the slack-relaxed barrier ADMM update."""
     gamma = slack_penalization_weight
-    w = prox_two_sided_log_barrier(
-        v, lower, upper, kappa * (1.0 / rho + 1.0 / gamma)
-    )
+    w = prox_two_sided_log_barrier(v, lower, upper, kappa * (1.0 / rho + 1.0 / gamma))
     xi_g = rho / (rho + gamma) * (w - v)
     return w - xi_g, xi_g
 
@@ -204,9 +197,7 @@ def initialize_barrier_image(
     )
     two_sided_margin = jnp.minimum(two_sided_margin, 0.25 * width)
     two_sided = _strictly_between(
-        jnp.clip(
-            value, safe_lower + two_sided_margin, safe_upper - two_sided_margin
-        ),
+        jnp.clip(value, safe_lower + two_sided_margin, safe_upper - two_sided_margin),
         safe_lower,
         safe_upper,
     )

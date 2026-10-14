@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.solver_fixtures import turbompc_solver_params
 from turbompc.dynamics.linear_dynamics import LinearDynamics

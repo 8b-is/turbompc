@@ -10,6 +10,7 @@ from typing import Union
 
 import jax
 import jax.numpy as jnp
+
 from turbompc.solvers.linear_systems_solvers.backends import SchurSolverBackend
 
 ArrayLike = Union[jax.Array, jnp.ndarray]

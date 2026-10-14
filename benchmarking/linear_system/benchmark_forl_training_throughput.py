@@ -849,10 +849,12 @@ def run_case(args: argparse.Namespace) -> dict[str, Any]:
         value = benchmark.measure()
         measurements.append(value)
         print(
-            f"repeat {index + 1}/{args.repeats}: "
-            f"collect={value.collection_seconds:.4f}s "
-            f"update={value.update_seconds:.4f}s "
-            f"total={value.total_seconds:.4f}s",
+            (
+                f"repeat {index + 1}/{args.repeats}: "
+                f"collect={value.collection_seconds:.4f}s "
+                f"update={value.update_seconds:.4f}s "
+                f"total={value.total_seconds:.4f}s"
+            ),
             flush=True,
         )
     collection = _median(measurements, "collection_seconds")
@@ -891,9 +893,9 @@ def run_case(args: argparse.Namespace) -> dict[str, Any]:
             if device.type == "cuda"
             else None
         ),
-        "gpu_name": torch.cuda.get_device_name(device)
-        if device.type == "cuda"
-        else None,
+        "gpu_name": (
+            torch.cuda.get_device_name(device) if device.type == "cuda" else None
+        ),
         "cpu_threads": torch.get_num_threads(),
         "torch_version": torch.__version__,
         "python_version": platform.python_version(),

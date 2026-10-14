@@ -97,7 +97,7 @@ where `n = n_states + n_controls` and each row `S[:, :, :n]`, `S[:, :, n:2*n]`,
 and `S[:, :, 2*n:]` contains the lower, diagonal, and upper blocks.
 The right hand side `gamma` is of shape `(T, n)` or `(B, T, n)`.
 
-All `SchurSystemSolver` implementations expose the `solve` function. 
+All `SchurSystemSolver` implementations expose the `solve` function.
 `S` can be of shape `(T, n, 3 * n)` or of shape `(B, T, n, 3 * n)`,
 where `B` is the batch size to solve a batch of independent
 linear systems in parallel.

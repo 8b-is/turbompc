@@ -4,12 +4,12 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 from jax import config
+
 from tests.helpers.problem_fixtures import make_linear_params
 from tests.helpers.solver_fixtures import turbompc_solver_params
 from turbompc.dynamics.base_dynamics import Dynamics
 from turbompc.dynamics.integrators import DiscretizationScheme
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
-from turbompc.solvers.constraint_handling import ConstraintHandling
 from turbompc.solvers import linesearch as linesearch_module
 from turbompc.solvers.linesearch import LinesearchMethod, parse_linesearch_method
 from turbompc.solvers.status import SQPStatus
@@ -419,9 +419,7 @@ def test_hard_filter_kkt_state_uses_accepted_partial_slack():
     solver_params = copy.deepcopy(base_solver.params)
     solver_params["num_sqp_iteration_max"] = 1
     solver = TurboMPCSolver(
-        program=OptimalControlProblem(
-            _QuadraticImplicitDynamics(), problem_params
-        ),
+        program=OptimalControlProblem(_QuadraticImplicitDynamics(), problem_params),
         params=solver_params,
         forward_backend=ForwardBackend.ADMM_JAX_LOOP_JAX_DENSE,
         backward_backend=BackwardBackend.DIRECT_JAX_DENSE,

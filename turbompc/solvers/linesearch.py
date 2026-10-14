@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, NamedTuple, Tuple, Union
 
 import jax
 import jax.numpy as jnp
+
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
 from turbompc.solvers.admm.inequality_log_barrier import (
     barrier_value,
@@ -71,10 +72,8 @@ def evaluate_constraints_with_bounds(
     eq_constraints = program.equality_constraints(states, controls, problem_params)
     eq_constraints_norm = constraint_norm(eq_constraints)
     if program.use_slack_variables:
-        ineq_values, ineq_lower, ineq_upper = (
-            program.inequality_constraints_with_slack(
-                states, controls, slacks, problem_params
-            )
+        ineq_values, ineq_lower, ineq_upper = program.inequality_constraints_with_slack(
+            states, controls, slacks, problem_params
         )
     else:
         ineq_values, ineq_lower, ineq_upper = program.inequality_constraints(
@@ -498,9 +497,7 @@ def _barrier_merit_linesearch(
     controls_new: jnp.ndarray,
     slacks_new: jnp.ndarray,
     barrier: BarrierLinesearchTerms,
-) -> Tuple[
-    Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray
-]:
+) -> Tuple[Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray]:
     """Choose a log-barrier SQP step with an Armijo merit test.
 
     The objective carries the two-sided barrier and the constraint norm
@@ -548,9 +545,7 @@ def _barrier_filter_linesearch(
     controls_new: jnp.ndarray,
     slacks_new: jnp.ndarray,
     barrier: BarrierLinesearchTerms,
-) -> Tuple[
-    Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray
-]:
+) -> Tuple[Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray]:
     """Choose a log-barrier step with the shared stateless filter rule."""
     candidate, alphas, theta_phi = _barrier_step_functions(
         program,
@@ -584,9 +579,7 @@ def barrier_linesearch(
     controls_new: jnp.ndarray,
     slacks_new: jnp.ndarray,
     barrier: BarrierLinesearchTerms,
-) -> Tuple[
-    Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray
-]:
+) -> Tuple[Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray], jnp.ndarray]:
     """Apply the log-barrier line search, interpolating ``s_g`` alongside x.
 
     Returns ``((states, controls, slacks, s_g), alpha)``. Every step is limited

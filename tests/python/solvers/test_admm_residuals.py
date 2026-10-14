@@ -7,6 +7,7 @@ import numpy as np
 import osqp
 import pytest
 import scipy.sparse as sp
+
 from tests.helpers.problem_fixtures import (
     cost_blocks_from_qr,
     make_spacecraft_params,
@@ -33,7 +34,6 @@ from turbompc.solvers.linear_systems_solvers.backends import (
 from turbompc.solvers.linear_systems_solvers.schur_solver import make_schur_solver
 from turbompc.solvers.qp_data import (
     QPCostBlocks,
-    QPData,
     QPEqualityBlocks,
     qpdata_from_ocp_blocks,
 )
@@ -679,7 +679,6 @@ def test_kkt_residuals_admm_vs_osqp_spacecraft(rescale, final_weight, implicit):
         qp_data=qp,
         rho_bar=admm_cfg["rho"],
     )
-    admm_stats = admm_result.stats
     admm_state = admm_result.state
     states_admm, controls_admm = unpack_x(admm_state.x_blocks, zshape)
     z_admm = pack_z(states_admm, controls_admm)

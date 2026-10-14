@@ -32,13 +32,16 @@ jax_config.update("jax_threefry_partitionable", True)
 
 import jax
 import jax.numpy as jnp
+
 try:
     from .benchmark_problem_setup import build_turbompc_linear_problem  # noqa: E402
     from .utils import TURBOMPC_SQP_ITER, generate_problem_data  # noqa: E402
 except ImportError:  # pragma: no cover - direct script execution
     from benchmark_problem_setup import build_turbompc_linear_problem  # noqa: E402
     from utils import TURBOMPC_SQP_ITER, generate_problem_data  # noqa: E402
+
 from jax import jit, vmap
+
 from turbompc.problems.optimal_control_problem import (  # noqa: E402
     OptimalControlProblem,
 )
@@ -273,9 +276,15 @@ def run_gradient_accuracy_sweep(
                 n_state=n_state,
             )
             rollout_batch_fd, _, weights = _build_rollout_batch(
-                dynamics, problem_params, solver_params_fd, weight_keys,
-                initial_states, fwd_backend, bwd_backend,
-                use_full_hessian_backward, sim_steps,
+                dynamics,
+                problem_params,
+                solver_params_fd,
+                weight_keys,
+                initial_states,
+                fwd_backend,
+                bwd_backend,
+                use_full_hessian_backward,
+                sim_steps,
             )
             # Warm-up
             _w = rollout_batch_fd(jnp.zeros_like(initial_states), weights)
@@ -349,9 +358,15 @@ def run_gradient_accuracy_sweep(
             )
 
             rollout_batch, _solver, weights = _build_rollout_batch(
-                dynamics, problem_params, solver_params, weight_keys,
-                initial_states, fwd_backend, bwd_backend,
-                use_full_hessian_backward, sim_steps,
+                dynamics,
+                problem_params,
+                solver_params,
+                weight_keys,
+                initial_states,
+                fwd_backend,
+                bwd_backend,
+                use_full_hessian_backward,
+                sim_steps,
             )
 
             def rollout_for_grad(w):

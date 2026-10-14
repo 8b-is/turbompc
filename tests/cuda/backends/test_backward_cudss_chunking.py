@@ -11,6 +11,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from turbompc.solvers.turbompc_solver import BackwardBackend
 

@@ -392,15 +392,19 @@ def run_case(args):
             key: float(np.mean([row[key] for row in measurements])) for key in fields
         },
         "std": {
-            key: float(np.std([row[key] for row in measurements], ddof=1))
-            if len(measurements) > 1
-            else 0.0
+            key: (
+                float(np.std([row[key] for row in measurements], ddof=1))
+                if len(measurements) > 1
+                else 0.0
+            )
             for key in fields
         },
         "td3_gradient_steps": gradient_steps if args.algorithm == "td3" else None,
-        "td3_utd": gradient_steps / (args.batch_size * args.steps)
-        if args.algorithm == "td3"
-        else None,
+        "td3_utd": (
+            gradient_steps / (args.batch_size * args.steps)
+            if args.algorithm == "td3"
+            else None
+        ),
         "learning_rates_frozen": True,
         "device": "cuda",
         "gpu_name": torch.cuda.get_device_name(),

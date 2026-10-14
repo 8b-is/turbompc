@@ -7,6 +7,7 @@ existing ADMM tests over ``constraint_handling``.
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.constraint_handling_fixtures import (
     QP_PCG_PARAMS,
     SLACK_WEIGHT,
@@ -14,7 +15,13 @@ from tests.helpers.constraint_handling_fixtures import (
     make_qp,
 )
 from turbompc.solvers.admm import ADMMSolver
-from turbompc.solvers.admm.admm import _apply_C, _apply_Ct, _apply_G, _apply_Gt, _apply_P
+from turbompc.solvers.admm.admm import (
+    _apply_C,
+    _apply_Ct,
+    _apply_G,
+    _apply_Gt,
+    _apply_P,
+)
 from turbompc.solvers.admm.inequality_log_barrier import barrier_gradient
 from turbompc.solvers.constraint_handling import ConstraintHandling
 from turbompc.solvers.linear_systems_solvers.backends import (
@@ -98,8 +105,9 @@ def test_solution_satisfies_the_smoothed_kkt_conditions(use_slack):
         "consensus": _apply_G(qp_data, state.x_blocks) - state.z_g,
         "dynamics": _apply_C(qp_data, state.x_blocks) - c_stack,
         "stationarity": stationarity,
-        "barrier dual": state.y_g
-        - barrier_gradient(w, lower, upper, log_barrier_kappa),
+        "barrier dual": state.y_g - barrier_gradient(
+            w, lower, upper, log_barrier_kappa
+        ),
         # Relaxation stationarity; xi_g is identically zero without slack.
         "slack": gamma * state.xi_g + state.y_g if use_slack else state.xi_g,
     }

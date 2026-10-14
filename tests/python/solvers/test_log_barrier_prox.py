@@ -18,7 +18,6 @@ from turbompc.solvers.admm.inequality_log_barrier import (
     relaxed_log_barrier_prox_update,
 )
 
-
 _BITS = {
     np.dtype(np.float32): (np.uint32, 32),
     np.dtype(np.float64): (np.uint64, 64),
@@ -40,7 +39,10 @@ def _from_key(key: int, dtype) -> float:
 
 
 def _residual_is_positive(
-    x: float, v: Fraction, lower: Optional[Fraction], upper: Optional[Fraction],
+    x: float,
+    v: Fraction,
+    lower: Optional[Fraction],
+    upper: Optional[Fraction],
     kappa: Fraction,
 ) -> bool:
     x = Fraction(x)
@@ -60,13 +62,19 @@ def _exact_bracket(
     lower_q = Fraction(lower) if np.isfinite(lower) else None
     upper_q = Fraction(upper) if np.isfinite(upper) else None
     v_q, kappa_q = Fraction(v), Fraction(kappa)
-    lo_limit = _key(np.nextafter(dtype(lower), dtype(upper)) if lower_q is not None
-                    else -finfo.max, dtype)
-    hi_limit = _key(np.nextafter(dtype(upper), dtype(lower)) if upper_q is not None
-                    else finfo.max, dtype)
+    lo_limit = _key(
+        np.nextafter(dtype(lower), dtype(upper)) if lower_q is not None else -finfo.max,
+        dtype,
+    )
+    hi_limit = _key(
+        np.nextafter(dtype(upper), dtype(lower)) if upper_q is not None else finfo.max,
+        dtype,
+    )
 
     def positive(key):
-        return _residual_is_positive(_from_key(key, dtype), v_q, lower_q, upper_q, kappa_q)
+        return _residual_is_positive(
+            _from_key(key, dtype), v_q, lower_q, upper_q, kappa_q
+        )
 
     # The root may lie between a bound and its nearest interior float.
     if positive(lo_limit):
@@ -112,33 +120,50 @@ def _prox_errors(v, lower, upper, kappa, dtype):
     ulp_errors = np.empty(v.shape)
     for i in np.ndindex(v.shape):
         a, b = _exact_bracket(
-            float(actual[i]), float(v[i]), float(lower[i]), float(upper[i]),
-            float(kappa[i]), dtype,
+            float(actual[i]),
+            float(v[i]),
+            float(lower[i]),
+            float(upper[i]),
+            float(kappa[i]),
+            dtype,
         )
         error = max(a - float(actual[i]), float(actual[i]) - b, 0.0)
         clearance = min(
-            (Fraction(a) - Fraction(float(lower[i])) if np.isfinite(lower[i]) else np.inf),
-            (Fraction(float(upper[i])) - Fraction(b) if np.isfinite(upper[i]) else np.inf),
+            (
+                Fraction(a) - Fraction(float(lower[i]))
+                if np.isfinite(lower[i])
+                else np.inf
+            ),
+            (
+                Fraction(float(upper[i])) - Fraction(b)
+                if np.isfinite(upper[i])
+                else np.inf
+            ),
         )
         clearance_errors[i] = error / float(clearance) if clearance > 0 else 0.0
         ulp_errors[i] = error / float(np.spacing(dtype(max(abs(a), abs(b)))))
     return actual, clearance_errors, ulp_errors
 
 
-def _assert_accurate(actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype):
+def _assert_accurate(
+    actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype
+):
     # Accurate to a few roundings of the clearance, or to a few ulps of the
     # solution where the clearance itself is below the representable spacing.
     rtol = 64 * np.finfo(dtype).eps
     ok = (clearance_errors <= rtol) | (ulp_errors <= 4.0)
     if not np.all(ok):
-        worst = np.unravel_index(np.argmax(np.where(ok, 0.0, clearance_errors)), ok.shape)
+        worst = np.unravel_index(
+            np.argmax(np.where(ok, 0.0, clearance_errors)), ok.shape
+        )
         pytest.fail(
-            f"{np.count_nonzero(~ok)} of {ok.size} prox values inaccurate; worst at "
-            f"v={np.asarray(v)[worst]!r}, lower={np.broadcast_to(lower, ok.shape)[worst]!r}, "
-            f"upper={np.broadcast_to(upper, ok.shape)[worst]!r}, "
-            f"kappa={np.broadcast_to(kappa, ok.shape)[worst]!r}: "
-            f"result={actual[worst]!r}, clearance error={clearance_errors[worst]:.3e}, "
-            f"ulp error={ulp_errors[worst]:.3e}"
+            f"{np.count_nonzero(~ok)} of {ok.size} prox values inaccurate; worst at"
+            f" v={np.asarray(v)[worst]!r},"
+            f" lower={np.broadcast_to(lower, ok.shape)[worst]!r},"
+            f" upper={np.broadcast_to(upper, ok.shape)[worst]!r},"
+            f" kappa={np.broadcast_to(kappa, ok.shape)[worst]!r}:"
+            f" result={actual[worst]!r}, clearance error={clearance_errors[worst]:.3e},"
+            f" ulp error={ulp_errors[worst]:.3e}"
         )
     lower_b = np.broadcast_to(lower, actual.shape)
     upper_b = np.broadcast_to(upper, actual.shape)
@@ -167,14 +192,26 @@ def _edge_case_inputs(lower: float, upper: float, kappa: float, dtype) -> np.nda
     midpoint = dtype(float(lower) + 0.5 * width)
     root = np.sqrt(kappa)
     values = [
-        lower, upper, midpoint,
-        np.nextafter(lower, -np.inf), np.nextafter(lower, np.inf),
-        np.nextafter(upper, -np.inf), np.nextafter(upper, np.inf),
-        np.nextafter(midpoint, -np.inf), np.nextafter(midpoint, np.inf),
+        lower,
+        upper,
+        midpoint,
+        np.nextafter(lower, -np.inf),
+        np.nextafter(lower, np.inf),
+        np.nextafter(upper, -np.inf),
+        np.nextafter(upper, np.inf),
+        np.nextafter(midpoint, -np.inf),
+        np.nextafter(midpoint, np.inf),
     ]
     scale = max(width, 1.0)
-    for distance in (1e8 * scale, 10 * width, width, 1e-3 * width,
-                     10 * root, root, 1e-3 * root):
+    for distance in (
+        1e8 * scale,
+        10 * width,
+        width,
+        1e-3 * width,
+        10 * root,
+        root,
+        1e-3 * root,
+    ):
         values += [float(lower) - distance, float(upper) + distance]
     # Interior points near a bound, on the scale of the interval and of
     # sqrt(kappa); inputs with v - lower << sqrt(kappa) used to stall Newton.
@@ -207,7 +244,9 @@ def _grid(dtype):
 def test_two_sided_prox_matches_exact_root_on_edge_case_grid(dtype):
     v, lower, upper, kappa = _grid(dtype)
     actual, clearance_errors, ulp_errors = _prox_errors(v, lower, upper, kappa, dtype)
-    _assert_accurate(actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype)
+    _assert_accurate(
+        actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype
+    )
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64])
@@ -230,7 +269,9 @@ def test_one_sided_prox_matches_exact_root(dtype, side):
         lower, upper = np.full_like(v, -np.inf), np.full_like(v, bound)
 
     actual, clearance_errors, ulp_errors = _prox_errors(v, lower, upper, kappa, dtype)
-    _assert_accurate(actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype)
+    _assert_accurate(
+        actual, clearance_errors, ulp_errors, v, lower, upper, kappa, dtype
+    )
 
 
 @pytest.mark.parametrize("dtype", [np.float32, np.float64])
@@ -249,14 +290,18 @@ def test_prox_is_monotone_and_reflection_symmetric(dtype):
     v = np.linspace(-6.0, 7.0, 2001).astype(dtype)
     tol = 8 * np.finfo(dtype).eps * 7.0
     for kappa in _KAPPAS:
-        result = np.asarray(prox_two_sided_log_barrier(
-            jnp.asarray(v), lower, upper, jnp.asarray(kappa, dtype=dtype)
-        ))
+        result = np.asarray(
+            prox_two_sided_log_barrier(
+                jnp.asarray(v), lower, upper, jnp.asarray(kappa, dtype=dtype)
+            )
+        )
         assert np.all(np.diff(result) >= -tol), f"not monotone for kappa={kappa}"
         # prox(v; l, u) = -prox(-v; -u, -l)
-        reflected = -np.asarray(prox_two_sided_log_barrier(
-            jnp.asarray(-v), -upper, -lower, jnp.asarray(kappa, dtype=dtype)
-        ))
+        reflected = -np.asarray(
+            prox_two_sided_log_barrier(
+                jnp.asarray(-v), -upper, -lower, jnp.asarray(kappa, dtype=dtype)
+            )
+        )
         np.testing.assert_allclose(result, reflected, rtol=0.0, atol=tol)
 
 
@@ -266,8 +311,12 @@ def test_interior_input_near_bound_regression():
     # value close to v instead of the prox. This stalled ADMM on a scalar QP.
     v = np.array([1e-6, 1e-4, 1e-3, 1.0 - 1e-4], dtype=np.float64)
     for kappa in (1e-2, 1e-3, 1e-4):
-        actual, clearance_errors, ulp_errors = _prox_errors(v, 0.0, 1.0, kappa, np.float64)
-        _assert_accurate(actual, clearance_errors, ulp_errors, v, 0.0, 1.0, kappa, np.float64)
+        actual, clearance_errors, ulp_errors = _prox_errors(
+            v, 0.0, 1.0, kappa, np.float64
+        )
+        _assert_accurate(
+            actual, clearance_errors, ulp_errors, v, 0.0, 1.0, kappa, np.float64
+        )
 
 
 def test_barrier_dominated_narrow_interval_regression():
@@ -275,7 +324,9 @@ def test_barrier_dominated_narrow_interval_regression():
     # far bound; Newton then crawls back instead of converging.
     v = np.array([-1e4, -1.0, 1.0, 1e4], dtype=np.float64)
     actual, clearance_errors, ulp_errors = _prox_errors(v, 0.0, 1e-6, 1e-2, np.float64)
-    _assert_accurate(actual, clearance_errors, ulp_errors, v, 0.0, 1e-6, 1e-2, np.float64)
+    _assert_accurate(
+        actual, clearance_errors, ulp_errors, v, 0.0, 1e-6, 1e-2, np.float64
+    )
 
 
 _MIXED_V = jnp.array([-3.0, 0.25, 4.0, -2.0, 3.0])
@@ -353,7 +404,9 @@ def test_fraction_to_boundary_step():
     upper = jnp.array([1.0, 1.0, jnp.inf])
     tau = 0.995
 
-    alpha = fraction_to_boundary_step(s, jnp.array([-10.0, 10.0, -10.0]), lower, upper, tau)
+    alpha = fraction_to_boundary_step(
+        s, jnp.array([-10.0, 10.0, -10.0]), lower, upper, tau
+    )
     # Every limiting row keeps exactly a (1 - tau) fraction of its clearance.
     np.testing.assert_allclose(float(alpha), tau * 0.5 / 10.0)
 

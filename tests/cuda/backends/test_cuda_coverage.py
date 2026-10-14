@@ -9,6 +9,7 @@ without stacking @pytest.mark.parametrize decorators in each test.
 import jax
 import jax.numpy as jnp
 import pytest
+
 from tests.cuda.helpers.processors import OCPProcessor, OCPSpec, SolverProcessor
 from tests.helpers.assertions import (
     assert_equality_residual,

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+
 from turbompc.dynamics.drone_dynamics import (
     DroneDynamics,
     drone_parameters,

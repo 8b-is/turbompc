@@ -1,8 +1,8 @@
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
-from tests.helpers.constraint_handling_fixtures import HANDLINGS, QP_PCG_PARAMS, make_qp
+
+from tests.helpers.constraint_handling_fixtures import HANDLINGS
 from tests.helpers.problem_fixtures import cost_blocks_from_qr
 from turbompc.solvers.admm import ADMMSolver
 from turbompc.solvers.admm.admm import compute_gamma, compute_S, compute_S_Phiinv

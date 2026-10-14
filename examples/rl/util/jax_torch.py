@@ -331,7 +331,9 @@ class PlantStepFunction(torch.autograd.Function):
         gradients = torch_to_jax(
             (grad_state, grad_reward, grad_bound_violation_squared)
         )
-        cotangents = tuple(cotangent(value, spec) for value, spec in zip(gradients, specs))
+        cotangents = tuple(
+            cotangent(value, spec) for value, spec in zip(gradients, specs)
+        )
         state, controls = ctx.saved_tensors
         state_jax, controls_jax = torch_to_jax((state, controls))
         dstate, dcontrols = ctx.bridge.vjp_device(

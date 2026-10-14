@@ -14,6 +14,7 @@ jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.constraint_handling_fixtures import (
     handlings,
     linear_problem,
@@ -458,7 +459,9 @@ def test_combined_slack_full_hessian_multi_weight():
 # solution, so every checked gradient flows through the inequality terms.
 
 
-def _assert_gradient_matches_finite_differences(solver, params, key, indices, *, eps, rtol):
+def _assert_gradient_matches_finite_differences(
+    solver, params, key, indices, *, eps, rtol
+):
     """Compare ``d loss / d params[key]`` at ``indices`` with central differences."""
     guess = solver.initial_guess(params)
     value = jnp.asarray(params[key])

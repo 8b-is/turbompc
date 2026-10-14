@@ -17,11 +17,7 @@ from turbompc.problems.optimal_control_problem import OptimalControlProblem
 
 from ...util.mpc import TurboSeed
 from ...util.training import training_config
-from .cost import (
-    Q_KEY,
-    R_KEY,
-    CostMap,
-)
+from .cost import Q_KEY, R_KEY, CostMap
 
 # Local racing-example state layout:
 # [yaw rate, speed, sideslip, rear wheel speed, lateral deviation,
@@ -326,7 +322,7 @@ class RacingProblem:
             Q_KEY: self.default_q,
             "weights_linear_penalization_state_trajectory": jnp.zeros((MPC_NX,)),
             "weights_penalization_final_state": jnp.zeros((MPC_NX,)),
-            "weights_linear_penalization_final_state": (self.terminal_linear_weight),
+            "weights_linear_penalization_final_state": self.terminal_linear_weight,
             R_KEY: self.default_r,
             "weights_linear_penalization_control_trajectory": jnp.zeros((NU,)),
             "weights_penalization_control_rate": self.rate_weights,

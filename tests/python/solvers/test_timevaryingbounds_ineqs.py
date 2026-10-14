@@ -1,4 +1,5 @@
 from jax import config
+
 from tests.helpers.problem_fixtures import make_linear_params
 from tests.helpers.solver_fixtures import turbompc_solver_params
 from turbompc.problems.optimal_control_problem import OptimalControlProblem

@@ -35,6 +35,7 @@ import time
 import jax
 import jax.numpy as jnp
 import numpy as np
+
 from examples.pointmass_rl.optimizer import adam_init, adam_step
 from examples.pointmass_rl.policy import init_policy, policy_apply
 from tests.helpers.solver_fixtures import turbompc_solver_params

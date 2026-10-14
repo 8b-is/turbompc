@@ -4,6 +4,7 @@ from typing import Any, Dict, NamedTuple, Optional, Tuple
 import jax.numpy as jnp
 from jax import lax, vmap
 from jax.lax import while_loop
+
 from turbompc.utils.load_params import load_solver_params
 
 DEFAULT_PCG_SOLVER_PARAMS = (

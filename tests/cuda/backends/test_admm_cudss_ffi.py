@@ -8,6 +8,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.cuda.helpers.processors import OCPProcessor, OCPSpec
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.constraint_handling_fixtures import HANDLINGS
@@ -250,12 +251,8 @@ def test_adapt_rho_disabled_is_identical_to_fixed():
     qp = _build_qp(horizon=20)
     rho_bar = 0.1
 
-    a = _solve(
-        qp, rho_bar, max_iter=200, check_termination_every=5, adapt_rho_every=0
-    )
-    b = _solve(
-        qp, rho_bar, max_iter=200, check_termination_every=5, adapt_rho_every=0
-    )
+    a = _solve(qp, rho_bar, max_iter=200, check_termination_every=5, adapt_rho_every=0)
+    b = _solve(qp, rho_bar, max_iter=200, check_termination_every=5, adapt_rho_every=0)
 
     np.testing.assert_allclose(
         np.asarray(a.state.x_blocks), np.asarray(b.state.x_blocks), atol=1e-12
@@ -271,12 +268,10 @@ def test_adapt_rho_actually_updates_rho():
     rho_bar_init = 1e-4  # tiny → primal residuals dominate, rho must grow
 
     fixed = _solve(
-        qp, rho_bar_init, max_iter=200,
-        check_termination_every=5, adapt_rho_every=0
+        qp, rho_bar_init, max_iter=200, check_termination_every=5, adapt_rho_every=0
     )
     adapt = _solve(
-        qp, rho_bar_init, max_iter=200,
-        check_termination_every=5, adapt_rho_every=10
+        qp, rho_bar_init, max_iter=200, check_termination_every=5, adapt_rho_every=10
     )
 
     rho_fixed = float(fixed.state.rho_bar)

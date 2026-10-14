@@ -4,6 +4,7 @@ from typing import NamedTuple, Optional, Tuple
 
 import jax.numpy as jnp
 from jax import lax, vmap
+
 from turbompc.solvers.admm.inequality_log_barrier import (
     log_barrier_prox_update,
     prox_two_sided_log_barrier,
@@ -1317,9 +1318,7 @@ class ADMMSolver:
                 xi_g=xi_g,
                 rho_bar=rho_new,
             )
-            should_check_termination = (
-                (it % params.check_termination_every) == 0
-            ) | (
+            should_check_termination = ((it % params.check_termination_every) == 0) | (
                 (it + 1) == params.max_iter
             )
             if detect_infeasibility:
@@ -1352,9 +1351,7 @@ class ADMMSolver:
             else:
                 should_check_infeasibility = jnp.asarray(False)
                 certificate = certificate_prev
-            should_check_status = (
-                should_check_termination | should_check_infeasibility
-            )
+            should_check_status = should_check_termination | should_check_infeasibility
             residuals_finite = (
                 jnp.isfinite(residuals.primal_residual)
                 & jnp.isfinite(residuals.dual_residual)

@@ -36,6 +36,7 @@ from turbompc.solvers.turbompc_solver import (
 )
 from turbompc.utils.load_params import load_solver_params
 from turbompc.utils.timing import ProblemConfig, benchmark_rollout
+
 try:
     from .utils import (  # noqa: E402
         MPC_TOL,

@@ -3,6 +3,7 @@ Tests for FFI shared library discovery.
 """
 
 import pytest
+
 from turbompc.solvers import ffi_loader
 
 LIB_NAME = "libadmm_fused_ffi.so"
@@ -16,8 +17,7 @@ def _touch(path):
 
 @pytest.fixture
 def package_ffi_dir(tmp_path, monkeypatch):
-    """Redirect the loader's package-relative root into a temporary tree.
-    """
+    """Redirect the loader's package-relative root into a temporary tree."""
     solvers_dir = tmp_path / "turbompc" / "solvers"
     monkeypatch.setattr(ffi_loader, "_SOLVERS_DIR", solvers_dir)
     monkeypatch.setattr(ffi_loader, "_installed_ffi_dirs", lambda: [])

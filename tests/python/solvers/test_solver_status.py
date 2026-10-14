@@ -3,14 +3,10 @@ from pathlib import Path
 import jax
 import jax.numpy as jnp
 import pytest
+
 from tests.helpers.constraint_handling_fixtures import HANDLINGS, is_barrier
 from tests.helpers.solver_fixtures import make_tiny_qp
-
-from turbompc.solvers.admm.admm import (
-    ADMMSolver,
-    _bound_support,
-    _select_admm_status,
-)
+from turbompc.solvers.admm.admm import ADMMSolver, _bound_support, _select_admm_status
 from turbompc.solvers.constraint_handling import ConstraintHandling
 from turbompc.solvers.linear_systems_solvers.backends import (
     AdmmBackend,
@@ -58,8 +54,7 @@ def test_status_values_and_precedence_match_native_code():
     assert [int(status) for status in SQPStatus] == [-1, 0, 1, 2, 3]
 
     header = (
-        Path(__file__).parents[3]
-        / "turbompc/solvers/admm/csrc/admm_status.cuh"
+        Path(__file__).parents[3] / "turbompc/solvers/admm/csrc/admm_status.cuh"
     ).read_text()
     for status in ADMMStatus:
         assert f"ADMM_STATUS_{status.name} = {int(status)};" in header
@@ -121,9 +116,7 @@ def test_admm_early_termination_status(
 
 def test_final_iteration_is_always_checked():
     qp = make_tiny_qp(q=jnp.ones((2, 1)), hessian=jnp.ones((2, 1, 1)))
-    result = jax.jit(
-        _solver(max_iter=2, check_termination_every=10).solve
-    )(qp)
+    result = jax.jit(_solver(max_iter=2, check_termination_every=10).solve)(qp)
     assert int(result.stats.status) == ADMMStatus.SOLVED
     assert result.iterations.residuals_valid.tolist() == [True, True]
 

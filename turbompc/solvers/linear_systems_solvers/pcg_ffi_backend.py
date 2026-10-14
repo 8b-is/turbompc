@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 
 import jax
 import jax.numpy as jnp
+
 from turbompc.solvers.ffi_loader import load_ffi_lib
 
 _LIB_NAME = "libpcg_blktridi_ffi.so"
@@ -103,9 +104,7 @@ def pcg_ffi_solve(
         x0 = jnp.zeros_like(rhs)
 
     def solve_one(S, Phiinv, rhs, x0):
-        return _pcg_ffi_solve_impl(
-            S, Phiinv, rhs, x0, eps=eps, max_iters=max_iters
-        )
+        return _pcg_ffi_solve_impl(S, Phiinv, rhs, x0, eps=eps, max_iters=max_iters)
 
     solve_one = jax.custom_batching.custom_vmap(solve_one)
 
@@ -113,17 +112,13 @@ def pcg_ffi_solve(
     def solve_one_vmap(axis_size, in_batched, S, Phiinv, rhs, x0):
         args = (S, Phiinv, rhs, x0)
         materialized = tuple(
-            value
-            if is_batched
-            else jnp.broadcast_to(value, (axis_size,) + value.shape)
+            value if is_batched else jnp.broadcast_to(value, (axis_size,) + value.shape)
             for value, is_batched in zip(args, in_batched)
         )
         S_batched, Phiinv_batched, rhs_batched, x0_batched = materialized
         batch_shape = S_batched.shape[:-3]
         S_flat = S_batched.reshape((-1,) + S_batched.shape[-3:])
-        Phiinv_flat = Phiinv_batched.reshape(
-            (-1,) + Phiinv_batched.shape[-3:]
-        )
+        Phiinv_flat = Phiinv_batched.reshape((-1,) + Phiinv_batched.shape[-3:])
         rhs_flat = rhs_batched.reshape((-1,) + rhs_batched.shape[-2:])
         x0_flat = x0_batched.reshape((-1,) + x0_batched.shape[-2:])
         solution_flat, iterations_flat = solve_one(

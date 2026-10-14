@@ -31,6 +31,7 @@ from typing import Any, Optional
 
 import jax.numpy as jnp
 import pytest
+
 from tests.helpers.backend_utils import backend_available
 from tests.helpers.problem_fixtures import (
     make_drone_params,
@@ -240,9 +241,7 @@ def _validate_solver_spec(spec: SolverSpec) -> None:
             f" {type(spec.backward_hessian)}."
         )
     if spec.backward_hessian == HessianApproximation.FULL_HESSIAN_PROJECTED:
-        raise ValueError(
-            "FULL_HESSIAN_PROJECTED is only supported for forward_hessian"
-        )
+        raise ValueError("FULL_HESSIAN_PROJECTED is only supported for forward_hessian")
     if spec.backward_hessian == HessianApproximation.FULL_HESSIAN:
         direct_bw = {BackwardBackend.DIRECT_JAX_DENSE, BackwardBackend.DIRECT_CUDSS_FFI}
         if spec.effective_backward not in direct_bw:

@@ -2,6 +2,7 @@
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.problem_fixtures import tile_spacecraft_inertia
 from tests.helpers.solver_fixtures import sqp_params
 from turbompc.dynamics.spacecraft_dynamics import SpacecraftDynamics

@@ -125,6 +125,7 @@ def make_trajectory_3d(
 ) -> None:
     import jax
     import jax.numpy as jnp
+
     from examples.pointmass_rl import pointmass_rl as pm
     from examples.pointmass_rl.policy import init_policy
 

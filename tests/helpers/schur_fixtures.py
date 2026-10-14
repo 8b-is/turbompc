@@ -1,4 +1,5 @@
 import jax.numpy as jnp
+
 from tests.helpers.problem_fixtures import make_spacecraft_params
 from tests.helpers.solver_fixtures import build_gauss_newton_qp, turbompc_solver_params
 from turbompc.dynamics.spacecraft_dynamics import SpacecraftDynamics

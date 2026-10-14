@@ -1,4 +1,5 @@
 import numpy as np
+
 from turbompc.dynamics.vehicle import PathVehicleDynamics, TimeVehicleDynamics
 from turbompc.utils.load_params import load_problem_params
 

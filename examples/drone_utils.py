@@ -25,6 +25,7 @@ _JAX_CACHE = os.environ.get(
 config.update("jax_compilation_cache_dir", _JAX_CACHE)
 
 import jax.numpy as jnp  # noqa: E402
+
 from turbompc.dynamics.drone_dynamics import (
     DroneDynamics,
     drone_parameters,

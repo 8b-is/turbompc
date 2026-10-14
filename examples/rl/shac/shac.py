@@ -222,8 +222,9 @@ class SHAC:
         summary.update(
             {
                 "rollout/reward_mean": float(torch.stack(raw_rewards).mean()),
-                "rollout/valid_fraction": float(valid_count)
-                / (hp.training_horizon * hp.num_envs),
+                "rollout/valid_fraction": float(valid_count) / (
+                    hp.training_horizon * hp.num_envs
+                ),
                 "rollout/episodes_completed": episode_lengths.numel(),
                 "rollout/episode_return_mean": (
                     float(episode_returns.mean())

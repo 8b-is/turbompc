@@ -105,7 +105,9 @@ def build(config):
         # Direct PPO historically begins with FP32 physical exploration values.
         sigma = np.asarray(sigma, dtype=np.float32 if name == "ppo" else np.float64)
         sigma = runtime.policy_sigma_from_physical(sigma)
-    paper_initialization = policy == "mpc" and training.get("paper_initialization", False)
+    paper_initialization = policy == "mpc" and training.get(
+        "paper_initialization", False
+    )
     actor = Actor(
         runtime.observation_dim,
         34 if paper_initialization else runtime.policy_parameter_dim,
@@ -118,7 +120,8 @@ def build(config):
         # products are unchanged; only quadratic costs enter the current OCP.
         output_indices=(
             [*range(7), *range(14, 17), *range(20, 27)]
-            if paper_initialization else None
+            if paper_initialization
+            else None
         ),
     )
     if name == "shac" or policy == "mpc":
@@ -129,8 +132,6 @@ def build(config):
     actor, critic = actor.to(runtime.device), critic.to(runtime.device)
     algorithm = algorithm_type(runtime, actor, critic, hyperparameters)
     if name == "ppo" and policy == "direct":
-        import torch
-
         with torch.no_grad():
             actor.log_std.copy_(
                 torch.as_tensor(sigma, device=runtime.device, dtype=runtime.dtype).log()
@@ -285,16 +286,16 @@ def run_training(method, seed, config, directory):
         "transitions_per_update": samples_per_update,
         "transitions": len(history) * samples_per_update,
         "training_seconds_excluding_update1_and_evaluation": training_seconds,
-        "seconds_per_100k_transitions": training_seconds
-        * 100000
-        / (len(timed) * samples_per_update)
-        if timed
-        else None,
+        "seconds_per_100k_transitions": (
+            training_seconds * 100000 / (len(timed) * samples_per_update)
+            if timed
+            else None
+        ),
         "selected_update": update,
         "selected_complete_evaluation": bool(candidates),
-        "selection": "best_complete_evaluation"
-        if candidates
-        else "final_no_complete_evaluation",
+        "selection": (
+            "best_complete_evaluation" if candidates else "final_no_complete_evaluation"
+        ),
         "final_evaluation": final_metrics,
         "initial_evaluation": initial_metrics,
         "nominal_evaluation": nominal_metrics,
@@ -303,9 +304,11 @@ def run_training(method, seed, config, directory):
         ),
         "selected_evaluation": selected_metrics,
         "device": str(learner.device),
-        "gpu_name": torch.cuda.get_device_name(learner.device)
-        if learner.device.type == "cuda"
-        else None,
+        "gpu_name": (
+            torch.cuda.get_device_name(learner.device)
+            if learner.device.type == "cuda"
+            else None
+        ),
         "torch_version": torch.__version__,
         "jax_version": jax.__version__,
         "experiment_source_sha256": hashlib.sha256(
@@ -330,8 +333,11 @@ def learning_curve(history, summary, baseline_reward):
     elapsed, curve = 0.0, {}
     if summary.get("initial_evaluation") is not None:
         curve[0] = dict(
-            method=summary["method"], seed=summary["seed"], update=0,
-            transitions=0, training_seconds=0.0,
+            method=summary["method"],
+            seed=summary["seed"],
+            update=0,
+            transitions=0,
+            training_seconds=0.0,
             **{"return": baseline_reward},
         )
     final_update = summary["updates"]
@@ -368,20 +374,27 @@ def paper_tracking_errors(directory, *, nominal=False):
     expected = config["evaluation"]["steps"]
     if states.shape != (expected, 7) or not np.isfinite(states).all():
         raise ValueError(f"Expected {expected} finite states at {directory}")
-    table = np.genfromtxt(ROOT / "examples/racing_trajectory.csv", delimiter=",", names=True)
+    table = np.genfromtxt(
+        ROOT / "examples/racing_trajectory.csv", delimiter=",", names=True
+    )
     if nominal:
         with np.load(directory / "nominal_tracking_errors.npz") as saved:
             errors = {key: saved[key] for key in ("lateral", "speed")}
     else:
         errors = {
             "lateral": np.abs(states[:, 4]),
-            "speed": np.abs(states[:, 1] - np.interp(states[:, -1], table["s"], table["V"])),
+            "speed": np.abs(
+                states[:, 1] - np.interp(states[:, -1], table["s"], table["V"])
+            ),
         }
     # Recorded states are x_1,...,x_T; the paper plots x_0,...,x_{T-1}.
     start = config["env"]["initial_s"]
     initial_s = np.asarray(start, dtype=states.dtype)
     initial_v = np.asarray(np.interp(start, table["s"], table["V"]), dtype=states.dtype)
-    initial_error = {"lateral": 0.0, "speed": abs(initial_v - np.interp(initial_s, table["s"], table["V"]))}
+    initial_error = {
+        "lateral": 0.0,
+        "speed": abs(initial_v - np.interp(initial_s, table["s"], table["V"])),
+    }
     for key, values in errors.items():
         if values.shape != (expected,) or not np.isfinite(values).all():
             raise ValueError(f"Incomplete {key} errors at {directory}")
@@ -432,17 +445,22 @@ def summarize_experiment(output, methods, seeds):
             summaries.append(summary)
     # The paper uses one shared zero-transition baseline per policy class.
     baselines = {}
-    for summary in sorted(summaries, key=lambda row: (not row["method"].startswith("shac"), row["seed"])):
+    for summary in sorted(
+        summaries, key=lambda row: (not row["method"].startswith("shac"), row["seed"])
+    ):
         baselines.setdefault(
             summary["method"].split("_")[1],
             summary["initial_evaluation"]["eval/reward_mean"],
         )
     for summary in summaries:
         method, seed = summary["method"], summary["seed"]
-        curves[method].append(learning_curve(
-            records(output / method / f"seed_{seed}"), summary,
-            baselines[method.split("_")[1]],
-        ))
+        curves[method].append(
+            learning_curve(
+                records(output / method / f"seed_{seed}"),
+                summary,
+                baselines[method.split("_")[1]],
+            )
+        )
     rows = [
         row for group in curves.values() for curve in group for row in curve.values()
     ]
@@ -470,7 +488,8 @@ def summarize_experiment(output, methods, seeds):
         # Five seeds have only 5^5=3125 resamples: enumerate them exactly.
         draws = (
             np.asarray(list(product(range(len(group)), repeat=len(group))))
-            if len(group) <= 5 else rng.integers(len(group), size=(2000, len(group)))
+            if len(group) <= 5
+            else rng.integers(len(group), size=(2000, len(group)))
         )
         low, high = np.quantile(values[draws].mean(axis=1), [0.025, 0.975], axis=0)
         label, color = METHODS[method]
@@ -512,22 +531,36 @@ def summarize_experiment(output, methods, seeds):
     return_axis.grid(alpha=0.2)
     return_axis.legend(ncol=2)
     groups = [
-        (METHODS[method][0], METHODS[method][1], [
-            (seed, paper_tracking_errors(output / method / f"seed_{seed}"))
-            for seed in seeds
-        ])
+        (
+            METHODS[method][0],
+            METHODS[method][1],
+            [
+                (seed, paper_tracking_errors(output / method / f"seed_{seed}"))
+                for seed in seeds
+            ],
+        )
         for method in ("shac_mpc", "shac_direct", "ppo_direct", "ppo_mpc")
         if method in methods
     ]
     if "shac_mpc" in methods:
-        groups.append(("MPC Nominal", "#999999", [(
-            seeds[0], paper_tracking_errors(
-                output / "shac_mpc" / f"seed_{seeds[0]}", nominal=True
-            ),
-        )]))
+        groups.append(
+            (
+                "MPC Nominal",
+                "#999999",
+                [
+                    (
+                        seeds[0],
+                        paper_tracking_errors(
+                            output / "shac_mpc" / f"seed_{seeds[0]}", nominal=True
+                        ),
+                    )
+                ],
+            )
+        )
     error_rows = []
     for axis, key, label in zip(
-        error_axes, ("lateral", "speed"),
+        error_axes,
+        ("lateral", "speed"),
         ("Absolute lateral error (m)", "Absolute speed error (m/s)"),
     ):
         for position, (name, color, trials) in enumerate(groups, 1):
@@ -535,25 +568,41 @@ def summarize_experiment(output, methods, seeds):
             for seed, errors in trials:
                 sample = errors[key]
                 values.append(sample)
-                error_rows.append(dict(
-                    method=name, seed=seed, error=key, samples=len(sample),
-                    mean=float(sample.mean()),
-                    q25=float(np.quantile(sample, 0.25)),
-                    median=float(np.median(sample)),
-                    q75=float(np.quantile(sample, 0.75)),
-                ))
+                error_rows.append(
+                    dict(
+                        method=name,
+                        seed=seed,
+                        error=key,
+                        samples=len(sample),
+                        mean=float(sample.mean()),
+                        q25=float(np.quantile(sample, 0.25)),
+                        median=float(np.median(sample)),
+                        q75=float(np.quantile(sample, 0.75)),
+                    )
+                )
             values = np.concatenate(values)
             parts = axis.violinplot(
-                [values], positions=[position], showextrema=False,
+                [values],
+                positions=[position],
+                showextrema=False,
                 quantiles=[[0.25, 0.5, 0.75]],
             )
             parts["bodies"][0].set(facecolor=color, edgecolor="black", alpha=0.65)
             parts["cquantiles"].set(color="black", linewidth=1)
-            axis.scatter(position, values.mean(), marker="D", facecolor="white",
-                         edgecolor="black", zorder=3)
-        axis.set(xticks=range(1, len(groups) + 1),
-                 xticklabels=[name.replace(" ", "\n") for name, _, _ in groups],
-                 ylabel=label, ylim=(0, None))
+            axis.scatter(
+                position,
+                values.mean(),
+                marker="D",
+                facecolor="white",
+                edgecolor="black",
+                zorder=3,
+            )
+        axis.set(
+            xticks=range(1, len(groups) + 1),
+            xticklabels=[name.replace(" ", "\n") for name, _, _ in groups],
+            ylabel=label,
+            ylim=(0, None),
+        )
         axis.grid(axis="y", alpha=0.2)
     for extension in ("png", "pdf"):
         fig5.savefig(output / f"fig5.{extension}", dpi=180)
@@ -564,13 +613,27 @@ def summarize_experiment(output, methods, seeds):
     report = {
         "methods": methods,
         "seeds": seeds,
-        "normalization": {"metric": "eval/reward_mean", "minimum_observed_return": minimum, "ideal_return": 0.0},
+        "normalization": {
+            "metric": "eval/reward_mean",
+            "minimum_observed_return": minimum,
+            "ideal_return": 0.0,
+        },
         "zero_transition_baselines": baselines,
-        "confidence_interval": "95% percentile bootstrap of seed curves; exact enumeration for up to five seeds",
-        "time_axis": "Mean cumulative training time at matched evaluation updates within each method",
-        "tracking_errors_checkpoint": "best complete evaluation; pre-control states pooled across seeds",
+        "confidence_interval": (
+            "95% percentile bootstrap of seed curves; exact enumeration for up to five"
+            " seeds"
+        ),
+        "time_axis": (
+            "Mean cumulative training time at matched evaluation updates within each"
+            " method"
+        ),
+        "tracking_errors_checkpoint": (
+            "best complete evaluation; pre-control states pooled across seeds"
+        ),
         "nominal_policy": "fixed MPC cost weights, without a neural cost map",
-        "postprocessing_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "postprocessing_source_sha256": hashlib.sha256(
+            Path(__file__).read_bytes()
+        ).hexdigest(),
         "runs": comparisons,
     }
     (output / "comparison.json").write_text(

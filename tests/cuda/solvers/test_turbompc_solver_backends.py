@@ -10,13 +10,9 @@ import scipy.sparse as sp
 jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
+
 from tests.helpers.assertions import assert_solution_nontrivial
 from tests.helpers.backend_utils import backend_param
-from tests.helpers.constraint_handling_fixtures import (
-    HANDLINGS,
-    is_barrier,
-    with_handling,
-)
 from tests.helpers.constants import (
     ADMM_EPS_BY_BACKEND,
     ADMM_EPS_BY_FORWARD_BACKEND,
@@ -26,6 +22,11 @@ from tests.helpers.constants import (
     OSQP_EPS,
     Z_TOL,
     Z_TOL_FUSED,
+)
+from tests.helpers.constraint_handling_fixtures import (
+    HANDLINGS,
+    is_barrier,
+    with_handling,
 )
 from tests.helpers.problem_fixtures import (
     make_drone_params,

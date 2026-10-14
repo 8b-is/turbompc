@@ -7,6 +7,7 @@ jax.config.update("jax_enable_x64", True)
 import jax.numpy as jnp
 import numpy as np
 import pytest
+
 from tests.helpers.problem_fixtures import make_drone_params
 from turbompc.dynamics.integrators import DiscretizationScheme
 from turbompc.problems.obstacle_avoidance import OptimalControlProblemObstacle

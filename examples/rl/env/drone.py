@@ -31,8 +31,9 @@ class DroneProblem:
         self.config = config
         self.ocp_base = {
             **config.problem_params,
-            "obstacles_radii": config.problem_params["obstacles_radii"]
-            + planning_margin,
+            "obstacles_radii": (
+                config.problem_params["obstacles_radii"] + planning_margin
+            ),
         }
         self.N = int(self.ocp_base["horizon"])
         if int(self.ocp_base["discretization_scheme"]) != 2:
@@ -193,7 +194,9 @@ class DroneRuntime:
             distance = jnp.sqrt(jnp.sum((next_x[:2] - centers) ** 2, axis=-1) + 1e-12)
             penetration = jnp.maximum(radii + reward_clearance - distance, 0.0)
             violation = jnp.sum(penetration**2)
-            goal_cost = jnp.sqrt(1.0 + jnp.sum(next_x[:3] ** 2) / goal_radius**2) - 1.0
+            goal_cost = (
+                jnp.sqrt(1.0 + jnp.sum(next_x[:3] ** 2) / goal_radius**2) - 1.0
+            )
             reward = -self.dt * (
                 jnp.sum(state_cost * next_x**2)
                 + jnp.sum(control_cost * u**2)
@@ -215,7 +218,9 @@ class DroneRuntime:
                 shifted = (1.0 - fraction) * values[:, :-1] + fraction * values[:, 1:]
                 return jnp.concatenate((shifted, values[:, -1:]), axis=1)
 
-            return TurboSeed(shift(plan.states), shift(plan.controls), plan.valid & ~done)
+            return TurboSeed(
+                shift(plan.states), shift(plan.controls), plan.valid & ~done
+            )
 
         self._advance = jax.jit(advance)
 

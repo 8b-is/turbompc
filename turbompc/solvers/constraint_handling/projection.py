@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, NamedTuple, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
+
 from turbompc.solvers.admm import ADMMState
 from turbompc.solvers.constraint_handling.base import (
     BackwardQPContext,

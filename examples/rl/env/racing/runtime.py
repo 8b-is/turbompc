@@ -264,6 +264,7 @@ class RacingRuntime:
         self.bound_violation_weight = float(settings["bound_violation_weight"])
         self.plant = PlantStep(env.transition)
         if backend is not None:
+
             def advance(iterate, previous, accepted, next_state, distance, done):
                 history = backend.select_seed_rows(iterate, previous, accepted)
                 return history, problem.advance(history, next_state, distance, done)
@@ -541,7 +542,12 @@ class RacingRuntime:
                 active=active_jax,
             )
             mean, controls, valid, iterations = jax_to_torch(
-                (result.mean, result.controls, result.valid, result.stats["inner_iterations"]),
+                (
+                    result.mean,
+                    result.controls,
+                    result.valid,
+                    result.stats["inner_iterations"],
+                ),
                 like=parameters,
             )
         valid = valid.bool()
@@ -718,8 +724,12 @@ class RacingRuntime:
                 (accepted, next_state, distance, done | ~active)
             )
             history, warm = self._advance(
-                policy.result.iterate, state.last_successful_seed, accepted_jax,
-                state_jax, distance_jax, done_jax,
+                policy.result.iterate,
+                state.last_successful_seed,
+                accepted_jax,
+                state_jax,
+                distance_jax,
+                done_jax,
             )
             new = replace(
                 new,
