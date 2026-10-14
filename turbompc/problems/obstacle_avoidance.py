@@ -4,10 +4,7 @@ from typing import Any, Dict, Tuple
 
 import jax.numpy as jnp
 from jax import vmap
-from turbompc.problems.optimal_control_problem import (
-    OptimalControlProblem,
-    make_slack_problem,
-)
+from turbompc.problems.optimal_control_problem import OptimalControlProblem
 
 
 class OptimalControlProblemObstacle(OptimalControlProblem):
@@ -51,11 +48,6 @@ class OptimalControlProblemObstacle(OptimalControlProblem):
         g_u = jnp.concatenate([g_u, g_obs_u])
         return (g, g_l, g_u)
 
-
-OptimalControlProblemObstacleSlack = make_slack_problem(OptimalControlProblemObstacle)
-
-
 __all__ = [
     "OptimalControlProblemObstacle",
-    "OptimalControlProblemObstacleSlack",
 ]

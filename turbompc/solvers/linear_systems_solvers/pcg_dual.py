@@ -127,8 +127,7 @@ class PCGDualOptimalControl:
             G=jnp.zeros((N + 1, 0, n)),
             l=jnp.zeros((N + 1, 0)),
             u=jnp.zeros((N + 1, 0)),
-            slack_penalization_weight=jnp.array(0.0),
-            use_slack_variables=False,
+            slack_penalization_weight=jnp.asarray(0.0),
         )
         return QPData(cost=cost, eq=eq, ineq=ineq)
 

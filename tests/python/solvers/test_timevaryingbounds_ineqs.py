@@ -44,7 +44,7 @@ def test_turbompc_solver_without_inequalities_should_not_crash():
     )
     problem = OptimalControlProblem(dynamics=dynamics, params=problem_params)
     solver_params = turbompc_solver_params(tol=1e-6, sqp_iters=4, admm_max=30)
-    solver_params["linesearch"] = False
+    solver_params["linesearch"]["method"] = "none"
     solver_params["verbose"] = False
     solver_params["admm"]["check_termination_every"] = 10
     solver_params["admm"]["adapt_rho_every"] = 0

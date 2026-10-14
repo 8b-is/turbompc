@@ -4,15 +4,13 @@ Tests the dynamics-Lagrangian Hessian computation for the backward pass for diff
 
 from __future__ import annotations
 
+import jax
 import numpy as np
 import pytest
-
-import jax
 
 jax.config.update("jax_enable_x64", True)
 
 import jax.numpy as jnp
-
 from turbompc.dynamics.cartpole_dynamics import CartpoleDynamics
 from turbompc.dynamics.integrators import DiscretizationScheme, predict_next_state
 from turbompc.problems.optimal_control_problem import OptimalControlProblem
@@ -38,7 +36,9 @@ def _cartpole_ocp(horizon: int, scheme: int):
         "reference_state_trajectory": jnp.zeros((horizon + 1, NX)),
         "reference_control_trajectory": jnp.zeros((horizon + 1, NU)),
         "penalize_control_reference": False,
-        "weights_penalization_reference_state_trajectory": jnp.array([1.0, 1.0, 10.0, 1.0]),
+        "weights_penalization_reference_state_trajectory": jnp.array(
+            [1.0, 1.0, 10.0, 1.0]
+        ),
         "weights_penalization_final_state": jnp.zeros((NX,)),
         "weights_penalization_control_squared": jnp.array([0.1]),
         "weights_penalization_control_rate": jnp.zeros((NU,)),
@@ -61,7 +61,8 @@ def _cartpole_ocp(horizon: int, scheme: int):
 @pytest.mark.parametrize("scheme", EXPLICIT_SCHEMES)
 def test_dynamics_hessian_matches_configured_integrator(scheme):
     """Each per-stage block must equal λᵀ∇²(predict_next_state(scheme)) — the Hessian of the integrator
-    the forward uses. Fails for Midpoint/RK4 if the block is hardcoded to the Euler dt·∇²f term."""
+    the forward uses. Fails for Midpoint/RK4 if the block is hardcoded to the Euler dt·∇²f term.
+    """
     horizon = 5
     ocp, params = _cartpole_ocp(horizon, scheme)
     N = ocp.horizon
@@ -93,8 +94,8 @@ def test_dynamics_hessian_matches_configured_integrator(scheme):
         hess_manual = jax.hessian(scalar_fn)(jnp.concatenate([states[t], controls[t]]))
         err = float(jnp.max(jnp.abs(hess[t] - hess_manual)))
         assert err < 1e-10, (
-            f"scheme={int(scheme)} stage {t}: dynamics Hessian block != grad^2(predict_next_state), "
-            f"max|Δ|={err:.2e}"
+            f"scheme={int(scheme)} stage {t}: dynamics Hessian block !="
+            f" grad^2(predict_next_state), max|Δ|={err:.2e}"
         )
 
     # Last block is terminal (no dynamics constraint) — must be exactly zero.

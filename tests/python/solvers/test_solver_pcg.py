@@ -67,8 +67,7 @@ def _make_qpdata(As, As_next, Bs, Qs, qs, Rs, rs, Cs) -> QPData:
         G=jnp.zeros((N + 1, 0, n), dtype=As.dtype),
         l=jnp.zeros((N + 1, 0), dtype=As.dtype),
         u=jnp.zeros((N + 1, 0), dtype=As.dtype),
-        slack_penalization_weight=jnp.array(0.0, dtype=As.dtype),
-        use_slack_variables=False,
+        slack_penalization_weight=jnp.asarray(0.0, dtype=As.dtype),
     )
     return QPData(cost=QPCostBlocks(D=D, E=E, q=q), eq=eq, ineq=ineq)
 
